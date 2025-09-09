@@ -33,6 +33,11 @@ namespace Fynanceo.API.Models.Entities
         public bool IsDelivery { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        // Novos campos de auditoria
+        public DateTime? ModifiedAt { get; set; }
+        public string? ModifiedReason { get; set; }
+        public int? ModifiedByUserId { get; set; }
+
         // Navigation properties
         public virtual ICollection<OrderItem> OrderItems { get; set; }
         public virtual Delivery Delivery { get; set; }

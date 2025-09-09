@@ -154,6 +154,7 @@ D:\Mairinck\1- Projetos\analisar projetos de estoques e clientes\Fynanceod\Fynan
 D:\Mairinck\1- Projetos\analisar projetos de estoques e clientes\Fynanceod\Fynanceo.API\obj\Debug\net9.0\Fynanceo.API.csproj.CoreCompileInputs.cache
 D:\Mairinck\1- Projetos\analisar projetos de estoques e clientes\Fynanceod\Fynanceo.API\obj\Debug\net9.0\Fynanceo.API.MvcApplicationPartsAssemblyInfo.cs
 D:\Mairinck\1- Projetos\analisar projetos de estoques e clientes\Fynanceod\Fynanceo.API\obj\Debug\net9.0\Fynanceo.API.MvcApplicationPartsAssemblyInfo.cache
+D:\Mairinck\1- Projetos\analisar projetos de estoques e clientes\Fynanceod\Fynanceo.API\obj\Debug\net9.0\Fynanceo.API.sourcelink.json
 D:\Mairinck\1- Projetos\analisar projetos de estoques e clientes\Fynanceod\Fynanceo.API\obj\Debug\net9.0\rjimswa.dswa.cache.json
 D:\Mairinck\1- Projetos\analisar projetos de estoques e clientes\Fynanceod\Fynanceo.API\obj\Debug\net9.0\rjsmrazor.dswa.cache.json
 D:\Mairinck\1- Projetos\analisar projetos de estoques e clientes\Fynanceod\Fynanceo.API\obj\Debug\net9.0\rjsmcshtml.dswa.cache.json

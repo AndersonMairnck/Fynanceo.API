@@ -124,9 +124,13 @@ namespace Fynanceo.API.Data
                 entity.Property(c => c.CreatedAt).HasDefaultValueSql("NOW()");
             });
 
+            // No método OnModelCreating, na configuração da entidade Order
             modelBuilder.Entity<Order>(entity =>
             {
+                entity.Property(o => o.TotalAmount).HasColumnType("decimal(18,2)");
+                entity.Property(o => o.Status).HasDefaultValue("Aberto");
                 entity.Property(o => o.CreatedAt).HasDefaultValueSql("NOW()");
+                entity.Property(o => o.ModifiedAt).IsRequired(false); // Campo opcional
             });
 
             modelBuilder.Entity<Customer>(entity =>
