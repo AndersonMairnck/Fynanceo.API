@@ -18,6 +18,7 @@ namespace Fynanceo.API.Models.Entities
 
         [Required]
         public int UserId { get; set; }
+
         public virtual User User { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]

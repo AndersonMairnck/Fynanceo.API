@@ -1,44 +1,29 @@
-# Fynanceo.API
- Documentação Completa - Fynanceo ERP API
-📖 Índice
+📚 Documentação Completa do Sistema Fynanceo ERP
+📋 Índice
 Visão Geral
 
 Tecnologias
 
 Estrutura do Projeto
 
+Funcionalidades Implementadas
+
+Funcionalidades Pendentes
+
 Configuração do Ambiente
+
+Como Executar
 
 Endpoints da API
 
-Autenticação JWT
+Problemas Resolvidos
 
-Exemplos de Uso
-
-Migrações e Banco de Dados
-
-Solução de Problemas
-
-Deploy
+Próximos Passos
 
 🎯 Visão Geral
 O Fynanceo ERP é um sistema completo para gestão de pequenos e médios comércios (padarias, lanchonetes, pizzarias, etc.) com arquitetura moderna API RESTful + Frontend desacoplado.
 
-Funcionalidades Principais:
-
-✅ Autenticação e autorização com JWT
-
-✅ Gestão de produtos e categorias
-
-✅ Controle de estoque automático
-
-✅ PDV (Frente de Caixa) completo
-
-✅ Gestão de pedidos e vendas
-
-✅ Controle de entregas
-
-✅ Relatórios e analytics
+Status atual: ✅ Sistema funcional com módulos principais implementados
 
 🛠 Tecnologias
 Backend
@@ -52,14 +37,16 @@ JWT - Autenticação por tokens
 
 Swagger/OpenAPI - Documentação interativa
 
-Docker - Containerização
+Frontend
+React 18 - Framework frontend
 
-Frontend (Próxima Fase)
-React.js ou Vue.js
+Vite - Build tool e dev server
 
-Material-UI ou Bootstrap
+Material-UI (MUI) - UI framework
 
-Axios para consumo de API
+React Router - Roteamento
+
+Axios - Cliente HTTP
 
 📁 Estrutura do Projeto
 text
@@ -68,26 +55,110 @@ Fynanceo/
 │   ├── Controllers/              # Controladores da API
 │   ├── Models/                   # Modelos de dados
 │   │   ├── Entities/             # Entidades do banco
-│   │   └── DTOs/                 # Objetos de transferência
+│   │   └── DTOs/                 # Data Transfer Objects
 │   ├── Data/                     # Contexto do banco
 │   ├── Services/                 # Lógica de negócio
 │   └── Properties/               # Configurações
-├── Fynanceo.Web/                 # Frontend (futuro)
+├── Fynanceo.Web/                 # Frontend React
+│   ├── src/
+│   │   ├── components/           # Componentes React
+│   │   │   ├── Auth/             # Autenticação
+│   │   │   ├── Dashboard/        # Dashboard
+│   │   │   ├── Layout/           # Layout principal
+│   │   │   ├── PDV/              # Ponto de Venda
+│   │   │   ├── Products/         # Gestão de Produtos
+│   │   │   └── Orders/           # Gestão de Pedidos
+│   │   ├── contexts/             # Contextos React
+│   │   ├── services/             # Serviços de API
+│   │   └── utils/                # Utilitários
 └── Documentation/                # Documentação
+✅ Funcionalidades Implementadas
+🔐 Autenticação e Segurança
+Sistema de login/logout com JWT
+
+Proteção de rotas com autenticação
+
+Diferentes níveis de acesso (Admin/Funcionário)
+
+Validação de tokens e renovação automática
+
+📊 Dashboard
+Dashboard principal com estatísticas
+
+Cards de resumo (produtos, pedidos, entregas)
+
+Layout responsivo com sidebar
+
+Menu de navegação completo
+
+🛍️ Gestão de Produtos
+CRUD completo de produtos
+
+Sistema de categorias
+
+Controle de estoque automático
+
+Soft delete com histórico
+
+Validações de preço e estoque
+
+🧾 PDV - Ponto de Venda
+Interface de caixa completa
+
+Carrinho de compras interativo
+
+Seleção de clientes
+
+Múltiplas formas de pagamento
+
+Sistema de entregas vs retirada
+
+Cálculo automático de totais
+
+📦 Gestão de Pedidos
+Listagem de pedidos com filtros
+
+Sistema de status (Aberto, Preparo, Entrega, etc.)
+
+Atualização de status em tempo real
+
+Histórico completo de vendas
+
+📋 Funcionalidades Pendentes
+⚠️ Em Desenvolvimento
+Gestão de clientes (CRUD completo)
+
+Relatórios e analytics
+
+Sistema de mesas para restaurantes
+
+Integração com impressora fiscal
+
+Backup automático de dados
+
+🚀 Próximas Implementações
+App mobile para entregadores
+
+Integração com WhatsApp
+
+Sistema de comandas
+
+Controle de gastos
+
+Múltiplos usuários simultâneos
+
 ⚙️ Configuração do Ambiente
 Pré-requisitos
 .NET 9.0 SDK
+
+Node.js 18+
 
 PostgreSQL
 
 Git
 
-1. Clone o repositório
-bash
-git clone https://github.com/seu-usuario/Fynanceo.git
-cd Fynanceo
-2. Configure o banco de dados
-appsettings.json:
+Variáveis de Ambiente
+Backend (Fynanceo.API/appsettings.json):
 
 json
 {
@@ -95,222 +166,186 @@ json
     "DefaultConnection": "Host=localhost;Port=5432;Database=FynanceoDB;Username=postgres;Password=sua_senha;"
   },
   "AppSettings": {
-    "Token": "chave-super-secreta-minimo-32-caracteres-aqui"
+    "Token": "chave-super-secreta-minimo-32-caracteres"
   }
 }
-3. Instale as dependências
+Frontend (Fynanceo.Web/.env.local):
+
+env
+VITE_API_BASE_URL=http://localhost:5000
+VITE_APP_NAME=Fynanceo ERP
+🚀 Como Executar
+1. Clone e preparação
+bash
+git clone <url-do-repositorio>
+cd Fynanceo
+2. Backend
 bash
 cd Fynanceo.API
+
+# Restaurar pacotes
 dotnet restore
-4. Execute as migrações
-bash
+
+# Executar migrações
 dotnet ef database update
-5. Execute a aplicação
-bash
+
+# Executar aplicação
 dotnet run
-Acesse: https://localhost:7000/swagger
+3. Frontend
+bash
+cd Fynanceo.Web
 
-🔌 Endpoints da API
+# Instalar dependências
+npm install
+
+# Executar aplicação
+npm run dev
+4. Acessos
+Frontend: http://localhost:3000
+
+Backend API: http://localhost:5000
+
+Swagger: http://localhost:5000/swagger
+
+Login: admin@fynanceo.com / admin123
+
+🌐 Endpoints da API
 Autenticação
-Método	Endpoint	Descrição
-POST	/api/Auth/login	Login de usuário
-POST	/api/Auth/register	Registrar novo usuário
+POST /api/auth/login - Login de usuário
+
+POST /api/auth/register - Registrar novo usuário
+
 Produtos
-Método	Endpoint	Descrição
-GET	/api/Products	Listar produtos ativos
-GET	/api/Products/{id}	Buscar produto por ID
-POST	/api/Products	Criar novo produto
-PUT	/api/Products/{id}	Atualizar produto
-PATCH	/api/Products/deactivate/{id}	Desativar produto
-PATCH	/api/Products/activate/{id}	Reativar produto
+GET /api/products - Listar produtos
+
+POST /api/products - Criar produto
+
+PUT /api/products/{id} - Atualizar produto
+
+PATCH /api/products/deactivate/{id} - Desativar produto
+
 Pedidos
-Método	Endpoint	Descrição
-GET	/api/Orders	Listar pedidos
-GET	/api/Orders/{id}	Buscar pedido por ID
-POST	/api/Orders	Criar novo pedido
-PATCH	/api/Orders/{id}/status	Atualizar status do pedido
-DELETE	/api/Orders/{id}	Cancelar pedido
-Entregas
-Método	Endpoint	Descrição
-GET	/api/Deliveries	Listar entregas
-GET	/api/Deliveries/{id}	Buscar entrega por ID
-PATCH	/api/Deliveries/{id}/status	Atualizar status da entrega
-GET	/api/Deliveries/stats	Estatísticas de entregas
-🔐 Autenticação JWT
-Login
-bash
-curl -X POST "https://localhost:7000/api/Auth/login" \
-  -H "Content-Type: application/json" \
-  -d '{"email":"admin@fynanceo.com","password":"admin123"}'
-Response
-json
-{
-  "token": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9...",
-  "user": {
-    "id": 1,
-    "name": "Administrador",
-    "email": "admin@fynanceo.com",
-    "role": "Administrador"
-  }
-}
-Uso do Token
-bash
-curl -X GET "https://localhost:7000/api/Products" \
-  -H "Authorization: Bearer SEU_TOKEN_JWT_AQUI"
-🚀 Exemplos de Uso
-1. Criar Pedido com Entrega
-bash
-curl -X POST "https://localhost:7000/api/Orders" \
-  -H "Authorization: Bearer TOKEN_JWT" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "customerId": 1,
-    "paymentMethod": "Pix",
-    "isDelivery": true,
-    "items": [
-      {"productId": 1, "quantity": 2, "unitPrice": 0.50},
-      {"productId": 2, "quantity": 1, "unitPrice": 3.50}
-    ],
-    "deliveryInfo": {
-      "deliveryPerson": "Entregador 1",
-      "deliveryAddress": "Rua Teste, 123",
-      "customerPhone": "(11) 99999-9999",
-      "estimatedDeliveryTime": "2024-01-01T18:00:00"
-    }
-  }'
-2. Atualizar Status de Entrega
-bash
-curl -X PATCH "https://localhost:7000/api/Deliveries/1/status" \
-  -H "Authorization: Bearer TOKEN_JWT" \
-  -H "Content-Type: application/json" \
-  -d '{"status": "EmRota"}'
-🗄️ Migrações e Banco de Dados
-Comandos Úteis
-bash
-# Criar nova migração
-dotnet ef migrations add NomeDaMigracao
+GET /api/orders - Listar pedidos
 
-# Aplicar migrações
-dotnet ef database update
+POST /api/orders - Criar pedido
 
-# Reverter migração
-dotnet ef database update NomeDaMigracaoAnterior
+PATCH /api/orders/{id}/status - Atualizar status
 
-# Recriar banco completo
-dotnet ef database drop --force
-dotnet ef database update
-Estrutura do Banco
-sql
--- Tabelas principais
-- users
-- products
-- categories
-- customers
-- orders
-- order_items
-- deliveries
-🐛 Solução de Problemas
-Erro Comum: Token Inválido
-Sintoma: 401 Unauthorized
-Solução: Verifique se o token está com Bearer na frente
+Categorias
+GET /api/categories - Listar categorias
 
-Erro Comum: PostgreSQL não conecta
-Sintoma: Npgsql.NpgsqlException
-Solução: Verifique se o PostgreSQL está rodando e a connection string
+POST /api/categories - Criar categoria
 
-Erro Comum: Migração falha
-Sintoma: Method 'get_LockReleaseBehavior' in type 'NpgsqlHistoryRepository'
-Solução: Use versões compatíveis dos pacotes:
+Clientes
+GET /api/customers - Listar clientes
 
-bash
-dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL --version 8.0.0
-dotnet add package Microsoft.EntityFrameworkCore.Design --version 8.0.0
-Comandos de Debug
-bash
-# Verificar se API está respondendo
-curl -X GET "https://localhost:7000/api/AuthTest/verify-token" \
-  -H "Authorization: Bearer TOKEN"
+POST /api/customers - Criar cliente
 
-# Verificar banco de dados
-curl -X GET "https://localhost:7000/api/Debug/check-db"
-🚀 Deploy
-Docker Compose
-yaml
-version: '3.8'
-services:
-  api:
-    build: .
-    ports:
-      - "5000:5000"
-      - "7000:7000"
-    environment:
-      - ConnectionStrings__DefaultConnection=Host=db;Database=FynanceoDB;Username=postgres;Password=password;
-    depends_on:
-      - db
+🔧 Problemas Resolvidos
+✅ Corrigidos
+Autenticação JWT - Configuração completa e funcionando
 
-  db:
-    image: postgres:15
-    environment:
-      - POSTGRES_DB=FynanceoDB
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+CORS - Comunicação entre frontend e backend
 
-volumes:
-  postgres_data:
-Dockerfile
-dockerfile
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-WORKDIR /src
-COPY . .
-RUN dotnet publish -c Release -o /app
+PostgreSQL - Configuração e migrações
 
-FROM mcr.microsoft.com/dotnet/aspnet:9.0
-WORKDIR /app
-COPY --from=build /app .
-ENTRYPOINT ["dotnet", "Fynanceo.API.dll"]
-Variáveis de Ambiente de Produção
-bash
-export ConnectionStrings__DefaultConnection="Host=prod-db;Database=FynanceoDB;Username=user;Password=pass;"
-export AppSettings__Token="chave-super-secreta-producao-aqui"
-export ASPNETCORE_ENVIRONMENT="Production"
-📞 Suporte
+Serialização JSON - Problemas de referência circular
+
+TimeZone - Erro de compatibilidade datas
+
+Soft Delete - Implementação correta
+
+Validações - Frontend e backend
+
+⚠️ Soluções Implementadas
+Hash de senhas com salt
+
+Middleware de erro personalizado
+
+DTOs para evitar overposting
+
+Transações para operações críticas
+
+Paginação para listas grandes
+
+Cache estratégico para melhor performance
+
+🎯 Próximos Passos
+Prioridade 1 (Urgente)
+Finalizar gestão de clientes
+
+Implementar relatórios básicos
+
+Sistema de impressão de recibos
+
+Validações de negócio completas
+
+Prioridade 2 (Importante)
+App mobile para entregas
+
+Integração com payment gateways
+
+Sistema de comandas eletrônicas
+
+Backup e restore de dados
+
+Prioridade 3 (Melhorias)
+PWA (Progressive Web App)
+
+Tema escuro/claro
+
+Internacionalização (i18n)
+
+Testes automatizados
+
+📞 Suporte e Contato
 Credenciais de Teste
-Admin:
+Admin: admin@fynanceo.com / admin123
 
-Email: admin@fynanceo.com
+Funcionário: funcionario@fynanceo.com / func123
 
-Senha: admin123
+Monitoramento
+Logs do backend: Console da aplicação
 
-Funcionário:
+Logs do frontend: Console do navegador (F12)
 
-Email: funcionario@fynanceo.com
+Banco de dados: PostgreSQL logs
 
-Senha: func123
+Troubleshooting
+Erro de conexão: Verificar se PostgreSQL está rodando
 
-Logs e Monitoramento
-bash
-# Ver logs da aplicação
-dotnet run --verbose
+Erro de migração: Executar dotnet ef database update
 
-# Logs detalhados no Program.cs
-builder.Logging.AddConsole();
-builder.Logging.SetMinimumLevel(LogLevel.Debug);
+Erro de build: Verificar versões do .NET e Node.js
+
+Erro de CORS: Verificar configuração no Program.cs
+
 📄 Licença
 Este projeto está sob licença MIT. Veja o arquivo LICENSE para detalhes.
 
-🤝 Contribuição
-Fork o projeto
+✨ Documentação atualizada em: 11/09/2024
 
-Crie uma branch para sua feature (git checkout -b feature/AmazingFeature)
+Última implementação: Sistema de PDV completo com gestão de pedidos e entregas 🎉
 
-Commit suas mudanças (git commit -m 'Add some AmazingFeature')
+🔄 Como Continuar o Desenvolvimento
+Se o chat atingir o limite:
+Consulte esta documentação para ver o estado atual
 
-Push para a branch (git push origin feature/AmazingFeature)
+Verifique o código no GitHub para ver implementações recentes
 
-Abra um Pull Request
+Continue a partir do último ponto documentado
 
-✨ Desenvolvido com 💜 para pequenos e médios comércios
+Use as credenciais de teste para validar funcionalidades
 
-*Documentação atualizada em: 09/09/2024*
+Para adicionar novas funcionalidades:
+Siga o padrão existente de controllers e componentes
+
+Use DTOs para transferência de dados
+
+Implemente validações frontend e backend
+
+Adicione testes quando possível
+
+Atualize esta documentação com as mudanças
+
+Happy coding! 🚀

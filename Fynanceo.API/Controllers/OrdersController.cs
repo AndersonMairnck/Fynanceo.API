@@ -134,7 +134,22 @@ namespace Fynanceo.API.Controllers
             var orderNumber = GenerateOrderNumber();
 
             // Obter usuário atual
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int userId = 0; // Valor default (usuário sistema)
+
+            if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out int parsedUserId))
+            {
+                userId = parsedUserId;
+            }
+            else
+            {
+                // Log opcional: Console.WriteLine("Usando userId default");
+            }
+
+            //if (!int.TryParse(userIdClaim, out int userId))
+            //{
+            //    return Unauthorized("ID do usuário inválido");
+            //}
 
             var order = new Order
             {
@@ -191,7 +206,15 @@ namespace Fynanceo.API.Controllers
             }
 
             // Retornar o pedido criado
-            return CreatedAtAction("GetOrder", new { id = order.Id }, await GetOrder(order.Id));
+            //return CreatedAtAction("GetOrder", new { id = order.Id }, await GetOrder(order.Id));
+            return Ok(new CreateOrderResponseDTO
+            {
+                Success = true,
+                Message = "Pedido criado com sucesso",
+                OrderId = order.Id,
+                OrderNumber = order.OrderNumber,
+                TotalAmount = order.TotalAmount
+            });
         }
 
         // PATCH: api/Orders/5/status
@@ -282,9 +305,23 @@ namespace Fynanceo.API.Controllers
 
         private string GenerateOrderNumber()
         {
-            var date = DateTime.Now.ToString("yyyyMMdd");
-            var count = _context.Orders.Count(o => o.CreatedAt.Date == DateTime.Today) + 1;
-            return $"PED-{date}-{count.ToString().PadLeft(4, '0')}";
+            try
+            {
+                var todayUtc = DateTime.UtcNow.Date; // Data UTC do dia atual
+
+                var count = _context.Orders
+                    .Where(o => o.CreatedAt >= todayUtc && o.CreatedAt < todayUtc.AddDays(1))
+                    .Count();
+
+                var date = DateTime.Now.ToString("yyyyMMdd");
+                return $"PED-{date}-{(count + 1).ToString().PadLeft(4, '0')}";
+            }
+            catch (Exception ex)
+            {
+                // Fallback se houver erro na contagem
+                var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+                return $"PED-EMG-{timestamp}";
+            }
         }
         // No OrdersController, adicione este método privado:
         private int GetCurrentUserId()
