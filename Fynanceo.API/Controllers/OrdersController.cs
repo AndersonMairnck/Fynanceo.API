@@ -18,6 +18,149 @@ namespace Fynanceo.API.Controllers
             _context = context;
         }
 
+        // POST: api/Orders (Para pedidos sem entrega)
+        [HttpPost]
+        public async Task<ActionResult<OrderDTO>> CreateOrder(CreateOrderDTO orderDto)
+        {
+            return await CreateOrderInternal(orderDto, false, null);
+        }
+
+        // POST: api/Orders/with-delivery (Para pedidos com entrega)
+        [HttpPost("with-delivery")]
+        public async Task<ActionResult<OrderDTO>> CreateOrderWithDelivery(CreateOrderWithDeliveryDTO orderDto)
+        {
+            return await CreateOrderInternal(orderDto, true, orderDto.DeliveryInfo);
+        }
+
+        private async Task<ActionResult<OrderDTO>> CreateOrderInternal(CreateOrderDTO orderDto, bool isDelivery, DeliveryInfoDTO deliveryInfoParam)
+        {
+            try
+            {
+                // Validações iniciais
+                if (orderDto.Items == null || orderDto.Items.Count == 0)
+                {
+                    return BadRequest(new { message = "O pedido deve conter pelo menos um item" });
+                }
+
+                if (isDelivery && deliveryInfoParam == null)
+                {
+                    return BadRequest(new { message = "Informações de entrega são obrigatórias para pedidos com delivery" });
+                }
+
+                if (isDelivery && string.IsNullOrEmpty(deliveryInfoParam.DeliveryAddress))
+                {
+                    return BadRequest(new { message = "Endereço de entrega é obrigatório" });
+                }
+
+                // Gerar número do pedido
+                var orderNumber = GenerateOrderNumber();
+
+                // Obter usuário atual
+                var userId = GetCurrentUserId();
+
+                var order = new Order
+                {
+                    OrderNumber = orderNumber,
+                    CustomerId = orderDto.CustomerId,
+                    UserId = userId,
+                    TotalAmount = orderDto.Items.Sum(item => item.Quantity * item.UnitPrice),
+                    Status = "Aberto",
+                    PaymentMethod = orderDto.PaymentMethod,
+                    IsDelivery = isDelivery,
+                    CreatedAt = DateTime.UtcNow,
+                    OrderItems = orderDto.Items.Select(item => new OrderItem
+                    {
+                        ProductId = item.ProductId,
+                        Quantity = item.Quantity,
+                        UnitPrice = item.UnitPrice,
+                        TotalPrice = item.Quantity * item.UnitPrice
+                    }).ToList()
+                };
+
+                // Validar e atualizar estoque
+                foreach (var item in orderDto.Items)
+                {
+                    var product = await _context.Products.FindAsync(item.ProductId);
+                    if (product == null)
+                    {
+                        throw new Exception($"Produto com ID {item.ProductId} não encontrado");
+                    }
+
+                    if (product.StockQuantity < item.Quantity)
+                    {
+                        throw new Exception($"Estoque insuficiente para o produto: {product.Name}. Disponível: {product.StockQuantity}, Solicitado: {item.Quantity}");
+                    }
+
+                    product.StockQuantity -= item.Quantity;
+                }
+
+                _context.Orders.Add(order);
+                await _context.SaveChangesAsync();
+
+                // Se for entrega, criar registro de delivery
+                if (isDelivery && deliveryInfoParam != null)
+                {
+                    var delivery = new Delivery
+                    {
+                        OrderId = order.Id,
+                        DeliveryPerson = deliveryInfoParam.DeliveryPerson,
+                        Status = "Pendente",
+                        DeliveryAddress = deliveryInfoParam.DeliveryAddress,
+                        CustomerPhone = deliveryInfoParam.CustomerPhone,
+                        EstimatedDeliveryTime = deliveryInfoParam.EstimatedDeliveryTime,
+                        CreatedAt = DateTime.UtcNow
+                    };
+
+                    _context.Deliveries.Add(delivery);
+                    await _context.SaveChangesAsync();
+                }
+           
+
+              // return CreatedAtAction("GetOrder", new { id = order.Id }, await GetOrderDTO(order.Id));
+                return Ok(await GetOrderDTO(order.Id));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        private async Task ValidateAndUpdateStock(List<CreateOrderItemDTO> items)
+        {
+            foreach (var item in items)
+            {
+                var product = await _context.Products.FindAsync(item.ProductId);
+                if (product == null)
+                {
+                    throw new Exception($"Produto com ID {item.ProductId} não encontrado");
+                }
+
+                if (product.StockQuantity < item.Quantity)
+                {
+                    throw new Exception($"Estoque insuficiente para o produto: {product.Name}. Disponível: {product.StockQuantity}, Solicitado: {item.Quantity}");
+                }
+
+                product.StockQuantity -= item.Quantity;
+            }
+        }
+
+        private async Task CreateDeliveryRecord(int orderId, DeliveryInfoDTO deliveryInfoDto)
+        {
+            var delivery = new Delivery
+            {
+                OrderId = orderId,
+                DeliveryPerson = deliveryInfoDto.DeliveryPerson, // Agora sem ambiguidade
+                DeliveryAddress = deliveryInfoDto.DeliveryAddress,
+                CustomerPhone = deliveryInfoDto.CustomerPhone,
+                EstimatedDeliveryTime = deliveryInfoDto.EstimatedDeliveryTime,
+                CreatedAt = DateTime.UtcNow
+            };
+
+
+            _context.Deliveries.Add(delivery);
+            await _context.SaveChangesAsync();
+        }
+
         // GET: api/Orders
         [HttpGet]
         public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrders(
@@ -32,15 +175,7 @@ namespace Fynanceo.API.Controllers
                     .ThenInclude(oi => oi.Product)
                 .AsQueryable();
 
-            // Filtros
-            if (!string.IsNullOrEmpty(status))
-                query = query.Where(o => o.Status == status);
-
-            if (startDate.HasValue)
-                query = query.Where(o => o.CreatedAt >= startDate.Value);
-
-            if (endDate.HasValue)
-                query = query.Where(o => o.CreatedAt <= endDate.Value);
+            // ... (filtros existentes)
 
             var orders = await query
                 .OrderByDescending(o => o.CreatedAt)
@@ -65,16 +200,57 @@ namespace Fynanceo.API.Controllers
                         Quantity = oi.Quantity,
                         UnitPrice = oi.UnitPrice,
                         TotalPrice = oi.TotalPrice
-                    }).ToList()
+                    }).ToList(),
+                    Delivery = o.Delivery != null ? new DeliveryDTO
+                    {
+                        Id = o.Delivery.Id,
+                        DeliveryPerson = o.Delivery.DeliveryPerson,
+                        Status = o.Delivery.Status,
+                        DeliveryAddress = o.Delivery.DeliveryAddress,
+                        CustomerPhone = o.Delivery.CustomerPhone,
+                        EstimatedDeliveryTime = o.Delivery.EstimatedDeliveryTime,
+                        ActualDeliveryTime = o.Delivery.ActualDeliveryTime
+                    } : null
                 })
                 .ToListAsync();
 
             return Ok(orders);
         }
 
-        // GET: api/Orders/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<OrderDTO>> GetOrder(int id)
+        // ... (outros métodos existentes)
+
+        private string GenerateOrderNumber()
+        {
+            try
+            {
+                var todayUtc = DateTime.UtcNow.Date; // Data UTC do dia atual
+
+                var count = _context.Orders
+                    .Where(o => o.CreatedAt >= todayUtc && o.CreatedAt < todayUtc.AddDays(1))
+                    .Count();
+
+                var date = DateTime.Now.ToString("yyyyMMdd");
+                return $"PED-{date}-{(count + 1).ToString().PadLeft(4, '0')}";
+            }
+            catch (Exception ex)
+            {
+                // Fallback se houver erro na contagem
+                var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+                return $"PED-EMG-{timestamp}";
+            }
+        }
+
+        private int GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim != null && int.TryParse(userIdClaim, out int userId))
+            {
+                return userId;
+            }
+            throw new UnauthorizedAccessException("Não foi possível identificar o usuário logado");
+        }
+
+        private async Task<OrderDTO> GetOrderDTO(int orderId)
         {
             var order = await _context.Orders
                 .Include(o => o.Customer)
@@ -82,7 +258,7 @@ namespace Fynanceo.API.Controllers
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
                 .Include(o => o.Delivery)
-                .Where(o => o.Id == id)
+                .Where(o => o.Id == orderId)
                 .Select(o => new OrderDTO
                 {
                     Id = o.Id,
@@ -118,222 +294,7 @@ namespace Fynanceo.API.Controllers
                 })
                 .FirstOrDefaultAsync();
 
-            if (order == null)
-            {
-                return NotFound();
-            }
-
             return order;
-        }
-
-        // POST: api/Orders
-        [HttpPost]
-        public async Task<ActionResult<OrderDTO>> CreateOrder(CreateOrderDTO orderDto)
-        {
-            // Gerar número do pedido
-            var orderNumber = GenerateOrderNumber();
-
-            // Obter usuário atual
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            int userId = 0; // Valor default (usuário sistema)
-
-            if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out int parsedUserId))
-            {
-                userId = parsedUserId;
-            }
-            else
-            {
-                // Log opcional: Console.WriteLine("Usando userId default");
-            }
-
-            //if (!int.TryParse(userIdClaim, out int userId))
-            //{
-            //    return Unauthorized("ID do usuário inválido");
-            //}
-
-            var order = new Order
-            {
-                OrderNumber = orderNumber,
-                CustomerId = orderDto.CustomerId,
-                UserId = userId,
-                TotalAmount = orderDto.Items.Sum(item => item.Quantity * item.UnitPrice),
-                Status = "Aberto",
-                PaymentMethod = orderDto.PaymentMethod,
-                IsDelivery = orderDto.IsDelivery,
-                CreatedAt = DateTime.UtcNow,
-                OrderItems = orderDto.Items.Select(item => new OrderItem
-                {
-                    ProductId = item.ProductId,
-                    Quantity = item.Quantity,
-                    UnitPrice = item.UnitPrice,
-                    TotalPrice = item.Quantity * item.UnitPrice
-                }).ToList()
-            };
-
-            // Atualizar estoque
-            foreach (var item in order.OrderItems)
-            {
-                var product = await _context.Products.FindAsync(item.ProductId);
-                if (product != null)
-                {
-                    if (product.StockQuantity < item.Quantity)
-                    {
-                        return BadRequest($"Estoque insuficiente para o produto: {product.Name}");
-                    }
-                    product.StockQuantity -= item.Quantity;
-                }
-            }
-
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
-
-            // Se for entrega, criar registro de delivery
-            if (orderDto.IsDelivery && orderDto.DeliveryInfo != null)
-            {
-                var delivery = new Delivery
-                {
-                    OrderId = order.Id,
-                    DeliveryPerson = orderDto.DeliveryInfo.DeliveryPerson,
-                    Status = "Pendente",
-                    DeliveryAddress = orderDto.DeliveryInfo.DeliveryAddress,
-                    CustomerPhone = orderDto.DeliveryInfo.CustomerPhone,
-                    EstimatedDeliveryTime = orderDto.DeliveryInfo.EstimatedDeliveryTime,
-                    CreatedAt = DateTime.UtcNow
-                };
-
-                _context.Deliveries.Add(delivery);
-                await _context.SaveChangesAsync();
-            }
-
-            // Retornar o pedido criado
-            //return CreatedAtAction("GetOrder", new { id = order.Id }, await GetOrder(order.Id));
-            return Ok(new CreateOrderResponseDTO
-            {
-                Success = true,
-                Message = "Pedido criado com sucesso",
-                OrderId = order.Id,
-                OrderNumber = order.OrderNumber,
-                TotalAmount = order.TotalAmount
-            });
-        }
-
-        // PATCH: api/Orders/5/status
-        // No OrdersController, método UpdateOrderStatus
-        [HttpPatch("{id}/status")]
-        public async Task<IActionResult> UpdateOrderStatus(int id, [FromBody] UpdateOrderStatusDTO statusDto)
-        {
-            var order = await _context.Orders.FindAsync(id);
-            if (order == null)
-            {
-                return NotFound();
-            }
-
-            order.Status = statusDto.Status;
-            order.ModifiedAt = DateTime.UtcNow;
-            order.ModifiedReason = $"Status alterado para: {statusDto.Status}";
-            order.ModifiedByUserId = GetCurrentUserId();
-
-            // Se o pedido for finalizado, atualizar estoque permanentemente
-            if (statusDto.Status == "Finalizado" || statusDto.Status == "Cancelado")
-            {
-                var orderItems = await _context.OrderItems
-                    .Where(oi => oi.OrderId == id)
-                    .Include(oi => oi.Product)
-                    .ToListAsync();
-
-                foreach (var item in orderItems)
-                {
-                    var product = item.Product;
-                    if (statusDto.Status == "Cancelado")
-                    {
-                        // Devolver ao estoque se cancelado
-                        product.StockQuantity += item.Quantity;
-                    }
-                }
-            }
-
-            await _context.SaveChangesAsync();
-
-            return Ok(new
-            {
-                Message = $"Status do pedido atualizado para: {statusDto.Status}",
-                ModifiedAt = order.ModifiedAt
-            });
-        }
-
-        // DELETE: api/Orders/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> CancelOrder(int id)
-        {
-            var order = await _context.Orders
-                .Include(o => o.OrderItems)
-                .FirstOrDefaultAsync(o => o.Id == id);
-
-            if (order == null)
-            {
-                return NotFound();
-            }
-
-            if (order.Status == "Finalizado")
-            {
-                return BadRequest("Não é possível cancelar um pedido finalizado");
-            }
-
-            // Devolver produtos ao estoque
-            foreach (var item in order.OrderItems)
-            {
-                var product = await _context.Products.FindAsync(item.ProductId);
-                if (product != null)
-                {
-                    product.StockQuantity += item.Quantity;
-                }
-            }
-
-            order.Status = "Cancelado";
-            order.ModifiedAt = DateTime.UtcNow;
-            order.ModifiedReason = "Pedido cancelado pelo usuário";
-            order.ModifiedByUserId = GetCurrentUserId();
-
-            await _context.SaveChangesAsync();
-
-            return Ok(new
-            {
-                Message = "Pedido cancelado com sucesso",
-                CancelledAt = order.ModifiedAt
-            });
-        }
-
-        private string GenerateOrderNumber()
-        {
-            try
-            {
-                var todayUtc = DateTime.UtcNow.Date; // Data UTC do dia atual
-
-                var count = _context.Orders
-                    .Where(o => o.CreatedAt >= todayUtc && o.CreatedAt < todayUtc.AddDays(1))
-                    .Count();
-
-                var date = DateTime.Now.ToString("yyyyMMdd");
-                return $"PED-{date}-{(count + 1).ToString().PadLeft(4, '0')}";
-            }
-            catch (Exception ex)
-            {
-                // Fallback se houver erro na contagem
-                var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
-                return $"PED-EMG-{timestamp}";
-            }
-        }
-        // No OrdersController, adicione este método privado:
-        private int GetCurrentUserId()
-        {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
-            {
-                return userId;
-            }
-
-            // Se não conseguir obter o ID do usuário, lance uma exceção ou retorne um valor padrão
-            throw new UnauthorizedAccessException("Não foi possível identificar o usuário logado");
         }
     }
 }

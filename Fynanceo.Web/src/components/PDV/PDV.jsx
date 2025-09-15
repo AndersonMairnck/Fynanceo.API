@@ -30,6 +30,7 @@ import {
 } from '@mui/icons-material';
 import { productsAPI, ordersAPI } from '../../services/api';
 import Layout from '../Layout/Layout';
+//import { useAuth } from '../../contexts/AuthContext';
 
 const PDV = () => {
     const [products, setProducts] = useState([]);
@@ -46,6 +47,8 @@ const PDV = () => {
         loadProducts();
         loadCustomers();
     }, []);
+
+    //const { user } = useAuth();
 
     const loadProducts = async () => {
         try {
@@ -118,25 +121,19 @@ const PDV = () => {
     };
    
     const handleCheckout = async () => {
+
+        
+
         if (cart.length === 0) {
             alert('Adicione produtos ao carrinho primeiro!');
             return;
         }
 
-        // Validação de estoque
-        for (const item of cart) {
-            if (item.quantity > item.stockQuantity) {
-                alert(`Estoque insuficiente para ${item.name}. Disponível: ${item.stockQuantity}`);
-                return;
-            }
-        }
-
         setLoading(true);
         try {
-            // Dados BASE - sempre enviar
-            const orderData = {
+            const baseOrderData = {
+                customerId: selectedCustomer?.id || null,
                 paymentMethod: paymentMethod,
-                isDelivery: isDelivery,
                 items: cart.map(item => ({
                     productId: item.id,
                     quantity: item.quantity,
@@ -144,74 +141,59 @@ const PDV = () => {
                 }))
             };
 
-            // Adiciona customerId apenas se selecionado
-            if (selectedCustomer) {
-                orderData.customerId = selectedCustomer.id;
-            }
+            let response;
 
-            // 🔥 IMPORTANTE: Só adiciona deliveryInfo se for entrega
             if (isDelivery) {
-                const deliveryAddress = prompt('Endereço de entrega:');
-                if (!deliveryAddress) {
-                    alert('Endereço de entrega é obrigatório!');
-                    setLoading(false);
-                    return;
-                }
-
-                const customerPhone = selectedCustomer?.phone || prompt('Telefone para contato:');
-                if (!customerPhone) {
-                    alert('Telefone para contato é obrigatório!');
-                    setLoading(false);
-                    return;
-                }
-
-                orderData.deliveryInfo = {
-                    deliveryPerson: prompt('Nome do entregador:') || 'Entregador',
-                    deliveryAddress: deliveryAddress,
-                    customerPhone: customerPhone
+                // Pedido com entrega
+                const orderWithDelivery = {
+                    ...baseOrderData,
+                    deliveryInfo: {
+                        deliveryPerson: "Entregador Padrão",
+                        deliveryAddress: selectedCustomer?.address || "Endereço não informado",
+                        customerPhone: selectedCustomer?.phone || "",
+                        estimatedDeliveryTime: new Date(Date.now() + 45 * 60000)
+                    }
                 };
+                response = await ordersAPI.createWithDelivery(orderWithDelivery);
+            } else {
+                // Pedido normal (retirada)
+                response = await ordersAPI.create(baseOrderData);
             }
 
-            console.log('📤 Dados enviados:', orderData);
+            console.log('Resposta recebida:', response);
+            console.log('Status:', response.status);
+            console.log('Dados:', response.data);
 
-            const response = await ordersAPI.create(orderData);
-
-            alert(`✅ Venda realizada com sucesso!\nNº do Pedido: ${response.data.orderNumber}\nTotal: R$ ${response.data.totalAmount?.toFixed(2) || getCartTotal().toFixed(2)}`);
-
-            // Limpa o carrinho
-            setCart([]);
-            setSelectedCustomer(null);
-            setIsDelivery(false);
-            setPaymentMethod('dinheiro');
+            // ✅ CORREÇÃO: Verifique se a resposta é bem-sucedida
+            if (response.status >= 200 && response.status < 300) {
+                alert('✅ Venda realizada com sucesso!');
+                setCart([]);
+                setSelectedCustomer(null);
+                setIsDelivery(false);
+            } else {
+                // ✅ Agora sim trata erros HTTP corretamente
+                throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
+            }
 
         } catch (error) {
-            console.error('❌ Erro detalhado:', error.response?.data);
+            console.error('Erro ao finalizar venda:', error);
 
-            let errorMessage = 'Erro ao finalizar venda';
-
-            // Tratamento melhorado de erro
-            if (error.response?.status === 400) {
-                if (error.response.data?.errors) {
-                    const validationErrors = Object.values(error.response.data.errors).flat();
-                    errorMessage = `Erros de validação:\n${validationErrors.join('\n')}`;
-                } else if (error.response.data?.message) {
-                    errorMessage = error.response.data.message;
-                } else {
-                    errorMessage = 'Dados inválidos enviados para o servidor.';
-                }
-            } else if (error.response?.data?.message) {
-                errorMessage = error.response.data.message;
-            } else if (error.message) {
-                errorMessage = error.message;
+            // ✅ Mensagem de erro mais amigável
+            if (error.response?.data?.message) {
+                alert(`Erro: ${error.response.data.message}`);
+            } else if (error.message.includes('HTTP')) {
+                // Se for erro HTTP, mostra mensagem específica
+                alert('Erro de comunicação com o servidor. A venda pode ter sido processada, mas houve um problema na resposta.');
+            } else {
+                alert('Erro ao finalizar venda: ' + error.message);
             }
-
-            alert(errorMessage);
         } finally {
             setLoading(false);
         }
-    
     };
-
+       
+   
+    
     return (
         <Layout>
             <Box sx={{ p: 2 }}>
@@ -371,6 +353,8 @@ const PDV = () => {
                                 >
                                     {loading ? 'Processando...' : 'Finalizar Venda'}
                                 </Button>
+                              
+                                
                             </Box>
                         </Paper>
                     </Grid>

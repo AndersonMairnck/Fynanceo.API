@@ -27,7 +27,7 @@ Status atual: ✅ Sistema funcional com módulos principais implementados
 
 🛠 Tecnologias
 Backend
-.NET 9.0 - Framework principal
+.NET 8.0 - Framework principal
 
 Entity Framework Core - ORM para PostgreSQL
 
@@ -149,7 +149,7 @@ Múltiplos usuários simultâneos
 
 ⚙️ Configuração do Ambiente
 Pré-requisitos
-.NET 9.0 SDK
+.NET 8.0 SDK
 
 Node.js 18+
 
@@ -344,8 +344,318 @@ Use DTOs para transferência de dados
 
 Implemente validações frontend e backend
 
-Adicione testes quando possível
+Documentação Técnica - Fynanceo ERP
+📋 Resumo do projeto
+Nome do sistema: Fynanceo ERP
+Objetivo principal: Sistema de gestão comercial para pequenos e médios comércios (padarias, lanchonetes, pizzarias)
+Visão geral da arquitetura:
 
-Atualize esta documentação com as mudanças
+Backend: .NET 9.0 + Entity Framework + PostgreSQL
 
-Happy coding! 🚀
+Frontend: React 18 + Vite + Material-UI
+
+Autenticação: JWT
+
+Banco: PostgreSQL
+
+🚀 Instruções para rodar o projeto
+Pré-requisitos
+.NET 9.0 SDK
+
+Node.js 18+
+
+PostgreSQL 14+
+
+npm ou yarn
+
+Configuração do ambiente
+Backend (.env):
+
+env
+ConnectionStrings__DefaultConnection=Host=localhost;Port=5432;Database=FynanceoDB;Username=postgres;Password=<MASKED>
+AppSettings__Token=<MASKED>
+ASPNETCORE_ENVIRONMENT=Development
+Frontend (.env.local):
+
+env
+VITE_API_BASE_URL=http://localhost:5000
+VITE_APP_NAME=Fynanceo ERP
+Comandos para execução
+Backend:
+
+bash
+cd Fynanceo.API
+dotnet restore
+dotnet ef database update
+dotnet run
+Frontend:
+
+bash
+cd Fynanceo.Web
+npm install
+npm run dev
+Migrations e Seed
+bash
+dotnet ef migrations add InitialCreate
+dotnet ef database update
+O seed inicial é executado automaticamente e cria:
+
+Usuário admin: admin@fynanceo.com / admin123
+
+Categorias e produtos de exemplo
+
+📁 Estrutura do repositório
+text
+Fynanceod/
+├── Fynanceo.API/                 # Backend .NET
+│   ├── Controllers/              # Controladores API
+│   ├── Models/                   # Entidades e DTOs
+│   ├── Data/                     # Contexto do banco
+│   ├── Services/                 # Lógica de negócio
+│   └── Migrations/               # Migrations EF
+├── Fynanceo.Web/                 # Frontend React
+│   ├── src/
+│   │   ├── components/           # Componentes React
+│   │   ├── services/             # API clients
+│   │   └── contexts/             # Contextos React
+└── docs/                         # Documentação
+Branches:
+
+main - Produção
+
+develop - Desenvolvimento atual
+
+🔙 Backend - Documentação detalhada
+Endpoints principais
+Método	Rota	Descrição	Auth
+POST	/api/auth/login	Autenticação	Não
+POST	/api/auth/register	Registrar usuário	Sim
+GET	/api/products	Listar produtos	Sim
+POST	/api/products	Criar produto	Sim
+GET	/api/orders	Listar pedidos	Sim
+POST	/api/orders	Criar pedido	Sim
+POST	/api/orders/with-delivery	Criar pedido c/ entrega	Sim
+Exemplo login:
+
+json
+// Request
+{"email": "admin@fynanceo.com", "password": "admin123"}
+
+// Response  
+{"token": "eyJ...", "user": {"id": 1, "name": "Admin", "email": "admin@fynanceo.com", "role": "Administrador"}}
+Controllers principais
+AuthController.cs (Controllers/AuthController.cs)
+
+Login() - Autenticação JWT
+
+Register() - Registrar novo usuário
+
+ProductsController.cs (Controllers/ProductsController.cs)
+
+GetProducts() - Listar produtos com filtros
+
+CreateProduct() - Criar novo produto
+
+DeactivateProduct() - Desativar produto (soft delete)
+
+OrdersController.cs (Controllers/OrdersController.cs)
+
+CreateOrder() - Pedido sem entrega
+
+CreateOrderWithDelivery() - Pedido com entrega
+
+GetOrders() - Listar pedidos com filtros
+
+Services
+AuthService.cs (Services/Implementations/AuthService.cs)
+
+Login() - Validar credenciais e gerar token
+
+Register() - Criar usuário com hash de senha
+
+Models/Entities
+User.cs (Models/Entities/User.cs)
+
+csharp
+public class User
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string Email { get; set; }
+    public string PasswordHash { get; set; }
+    public string PasswordSalt { get; set; }
+    public string Role { get; set; }
+    public bool IsActive { get; set; }
+    public DateTime CreatedAt { get; set; }
+}
+Product.cs (Models/Entities/Product.cs)
+
+csharp
+public class Product
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public decimal Price { get; set; }
+    public int StockQuantity { get; set; }
+    public int CategoryId { get; set; }
+    public bool IsActive { get; set; }
+    public DateTime CreatedAt { get; set; }
+}
+Autenticação
+JWT com claims de usuário e role. Token válido por 24 horas.
+
+🖥️ Frontend - Documentação detalhada
+Rotas principais
+/login - Autenticação
+
+/dashboard - Dashboard principal
+
+/products - Gestão de produtos
+
+/orders - Gestão de pedidos
+
+/pdv - Ponto de venda
+
+Componentes principais
+AuthContext.jsx (src/contexts/AuthContext.jsx)
+
+Gerenciamento de estado de autenticação
+
+Login/logout e persistência de token
+
+PDV.jsx (src/components/PDV/PDV.jsx)
+
+Sistema completo de ponto de venda
+
+Carrinho, seleção de produtos, checkout
+
+ProductList.jsx (src/components/Products/ProductList.jsx)
+
+Listagem e gestão de produtos
+
+Filtros e ações em massa
+
+Chamadas à API
+api.js (src/services/api.js)
+
+javascript
+export const authAPI = {
+  login: (credentials) => api.post('/auth/login', credentials),
+  register: (userData) => api.post('/auth/register', userData)
+};
+
+export const productsAPI = {
+  getAll: () => api.get('/products'),
+  create: (product) => api.post('/products', product)
+};
+Estilos e temas
+Material-UI com tema customizado. Cores primárias: #1976d2, secundárias: #dc004e
+
+🗄️ Banco de dados
+Modelo principal
+text
+users (id, name, email, password_hash, role, is_active)
+products (id, name, price, stock_quantity, category_id, is_active) 
+categories (id, name, description)
+orders (id, order_number, customer_id, total_amount, status)
+order_items (id, order_id, product_id, quantity, unit_price)
+deliveries (id, order_id, status, delivery_person, delivery_address)
+Índices importantes
+users(email) - Unique
+
+products(category_id) - Foreign key
+
+orders(customer_id) - Foreign key
+
+📋 O que falta implementar (TODOs)
+Alta prioridade
+Sistema completo de pedidos
+
+Arquivos: OrdersController.cs, OrderForm.jsx
+
+Complexidade: Média
+
+Critérios: CRUD completo, fluxo de status
+
+Gestão de entregas
+
+Arquivos: DeliveriesController.cs, DeliveryTracking.jsx
+
+Complexidade: Média
+
+Critérios: Rastreamento, status em tempo real
+
+Relatórios e dashboard analítico
+
+Arquivos: ReportsController.cs, DashboardCharts.jsx
+
+Complexidade: Complexa
+
+Critérios: Gráficos, filtros temporais, exportação
+
+Média prioridade
+Sistema de mesas/lugares (para restaurantes)
+
+Integração com impressora fiscal
+
+App mobile para entregadores
+
+Baixa prioridade
+Multi-tenancy (múltiplos estabelecimentos)
+
+API pública para integrações
+
+Sistema de fidelidade
+
+🎯 Onde começar
+Próximos passos recomendados
+Implementar fluxo completo de pedidos:
+
+Finalizar OrdersController.cs (métodos PUT/DELETE)
+
+Criar formulário de edição de pedidos
+
+Implementar alteração de status
+
+Melhorar PDV:
+
+Adicionar busca rápida de produtos
+
+Implementar calculadora de troco
+
+Adicionar impressão de recibo
+
+Sistema de entregas:
+
+Criar DeliveriesController.cs
+
+Implementar tracking de status
+
+Criar interface para entregadores
+
+Arquivos para começar:
+Controllers/OrdersController.cs - Lógica principal de pedidos
+
+src/components/Orders/OrderForm.jsx - Formulário de pedidos
+
+src/components/PDV/PDV.jsx - Melhorias no ponto de venda
+
+Para testar o atual:
+Faça login com admin@fynanceo.com / admin123
+
+Acesse o PDV em /pdv
+
+Teste a criação de produtos em /products
+
+Verifique os pedidos em /orders
+
+⚠️ Pontos de atenção conhecidos
+Validações - Algumas validações de backend estão incompletas
+
+Error handling - Tratamento de erros precisa ser melhorado
+
+Testes - Testes automatizados ainda não implementados
+
+Performance - Queries complexas podem precisar de otimização
+
+O projeto está bem estruturado mas precisa da finalização dos módulos principais de pedidos e entregas para se tornar totalmente funcional.

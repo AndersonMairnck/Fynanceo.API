@@ -58,18 +58,26 @@ const Dashboard = () => {
             // Carregar estatísticas de produtos
             const productsResponse = await productsAPI.getAll();
 
+            //setStats(prev => ({
+
+            //    ...prev,
+
+            //    totalProducts: productsResponse.data.length
+
+            //}));
+
             // Carregar estatísticas de pedidos
             const ordersResponse = await ordersAPI.getAll();
             const ordersData = ordersResponse.data;
 
-            setStats({
+            setStats(prev =>( {
                 totalProducts: productsResponse.data.length,
                 totalOrders: ordersData.length,
                 pendingDeliveries: ordersData.filter(order =>
                     ['Aberto', 'EmPreparo', 'SaiuParaEntrega'].includes(order.status)
                 ).length,
-                totalCustomers: customers.length // Adicione esta variável se existir
-            });
+                //totalCustomers: customers.length // Adicione esta variável se existir
+            }));
         } catch (error) {
             console.error('Erro ao carregar estatísticas:', error);
         }

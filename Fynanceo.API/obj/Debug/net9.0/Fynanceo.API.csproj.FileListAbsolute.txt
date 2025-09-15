@@ -10,6 +10,9 @@ D:\Mairinck\1- Projetos\analisar projetos de estoques e clientes\Fynanceod\Fynan
 D:\Mairinck\1- Projetos\analisar projetos de estoques e clientes\Fynanceod\Fynanceo.API\bin\Debug\net9.0\Fynanceo.API.pdb
 D:\Mairinck\1- Projetos\analisar projetos de estoques e clientes\Fynanceod\Fynanceo.API\bin\Debug\net9.0\Azure.Core.dll
 D:\Mairinck\1- Projetos\analisar projetos de estoques e clientes\Fynanceod\Fynanceo.API\bin\Debug\net9.0\Azure.Identity.dll
+D:\Mairinck\1- Projetos\analisar projetos de estoques e clientes\Fynanceod\Fynanceo.API\bin\Debug\net9.0\FluentValidation.dll
+D:\Mairinck\1- Projetos\analisar projetos de estoques e clientes\Fynanceod\Fynanceo.API\bin\Debug\net9.0\FluentValidation.AspNetCore.dll
+D:\Mairinck\1- Projetos\analisar projetos de estoques e clientes\Fynanceod\Fynanceo.API\bin\Debug\net9.0\FluentValidation.DependencyInjectionExtensions.dll
 D:\Mairinck\1- Projetos\analisar projetos de estoques e clientes\Fynanceod\Fynanceo.API\bin\Debug\net9.0\Humanizer.dll
 D:\Mairinck\1- Projetos\analisar projetos de estoques e clientes\Fynanceod\Fynanceo.API\bin\Debug\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 D:\Mairinck\1- Projetos\analisar projetos de estoques e clientes\Fynanceod\Fynanceo.API\bin\Debug\net9.0\Microsoft.AspNetCore.OpenApi.dll
@@ -165,6 +168,7 @@ D:\Mairinck\1- Projetos\analisar projetos de estoques e clientes\Fynanceod\Fynan
 D:\Mairinck\1- Projetos\analisar projetos de estoques e clientes\Fynanceod\Fynanceo.API\obj\Debug\net9.0\staticwebassets.build.json.cache
 D:\Mairinck\1- Projetos\analisar projetos de estoques e clientes\Fynanceod\Fynanceo.API\obj\Debug\net9.0\staticwebassets.development.json
 D:\Mairinck\1- Projetos\analisar projetos de estoques e clientes\Fynanceod\Fynanceo.API\obj\Debug\net9.0\staticwebassets.build.endpoints.json
+D:\Mairinck\1- Projetos\analisar projetos de estoques e clientes\Fynanceod\Fynanceo.API\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
 D:\Mairinck\1- Projetos\analisar projetos de estoques e clientes\Fynanceod\Fynanceo.API\obj\Debug\net9.0\Fynanceo.65CD4F4D.Up2Date
 D:\Mairinck\1- Projetos\analisar projetos de estoques e clientes\Fynanceod\Fynanceo.API\obj\Debug\net9.0\Fynanceo.API.dll
 D:\Mairinck\1- Projetos\analisar projetos de estoques e clientes\Fynanceod\Fynanceo.API\obj\Debug\net9.0\refint\Fynanceo.API.dll

@@ -1,4 +1,4 @@
-import axios from 'axios';
+﻿import axios from 'axios';
 
 
 
@@ -10,7 +10,7 @@ const api = axios.create({
     baseURL: API_BASE_URL,
 });
 
-// Interceptor para adicionar o token �s requisi��es
+// Interceptor para adicionar o token às requisições
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
@@ -24,17 +24,33 @@ api.interceptors.request.use(
     }
 );
 
-// Interceptor para tratar erros de autentica��o
+
+
+// Interceptor para tratar erros de autenticação
 api.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        // ✅ Retorna diretamente a resposta para status 2xx
+        return response;
+    },
     (error) => {
         if (error.response?.status === 401) {
             localStorage.removeItem('token');
+            localStorage.removeItem('user');
             window.location.href = '/login';
         }
-        return Promise.reject(error);
+
+        // ✅ Melhor tratamento de erro
+        const errorMessage = error.response?.data?.message ||
+            error.response?.statusText ||
+            error.message ||
+            'Erro de conexão';
+
+        const enhancedError = new Error(errorMessage);
+        enhancedError.response = error.response;
+        return Promise.reject(enhancedError);
     }
 );
+
 
 export const authAPI = {
     login: (credentials) => api.post('/auth/login', credentials),
@@ -51,9 +67,15 @@ export const productsAPI = {
     activate: (id) => api.patch(`/products/activate/${id}`),
 };
 export const ordersAPI = {
+    // Pedido normal (sem entrega)
+    create: (order) => api.post('/orders', order),
+
+    // Pedido com entrega - CORRIGIDO
+    createWithDelivery: (orderWithDelivery) => api.post('/orders/with-delivery', orderWithDelivery),
+
+    // Outras funções existentes
     getAll: () => api.get('/orders'),
     getById: (id) => api.get(`/orders/${id}`),
-    create: (order) => api.post('/orders', order),
     updateStatus: (id, statusData) => api.patch(`/orders/${id}/status`, statusData),
     cancel: (id) => api.delete(`/orders/${id}`),
 };

@@ -469,6 +469,32 @@
   },
   {
     "ContainingType": "Fynanceo.API.Controllers.OrdersController",
+    "Method": "CreateOrder",
+    "RelativePath": "api/Orders",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "orderDto",
+        "Type": "Fynanceo.API.Models.DTOs.CreateOrderDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Fynanceo.API.Models.DTOs.OrderDTO",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Fynanceo.API.Controllers.OrdersController",
     "Method": "GetOrders",
     "RelativePath": "api/Orders",
     "HttpMethod": "GET",
@@ -505,15 +531,15 @@
   },
   {
     "ContainingType": "Fynanceo.API.Controllers.OrdersController",
-    "Method": "CreateOrder",
-    "RelativePath": "api/Orders",
+    "Method": "CreateOrderWithDelivery",
+    "RelativePath": "api/Orders/with-delivery",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
         "Name": "orderDto",
-        "Type": "Fynanceo.API.Models.DTOs.CreateOrderDTO",
+        "Type": "Fynanceo.API.Models.DTOs.CreateOrderWithDeliveryDTO",
         "IsRequired": true
       }
     ],
@@ -528,69 +554,6 @@
         "StatusCode": 200
       }
     ]
-  },
-  {
-    "ContainingType": "Fynanceo.API.Controllers.OrdersController",
-    "Method": "GetOrder",
-    "RelativePath": "api/Orders/{id}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "Fynanceo.API.Models.DTOs.OrderDTO",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "Fynanceo.API.Controllers.OrdersController",
-    "Method": "CancelOrder",
-    "RelativePath": "api/Orders/{id}",
-    "HttpMethod": "DELETE",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Fynanceo.API.Controllers.OrdersController",
-    "Method": "UpdateOrderStatus",
-    "RelativePath": "api/Orders/{id}/status",
-    "HttpMethod": "PATCH",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      },
-      {
-        "Name": "statusDto",
-        "Type": "Fynanceo.API.Models.DTOs.UpdateOrderStatusDTO",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
   },
   {
     "ContainingType": "Fynanceo.API.Controllers.ProductsController",
