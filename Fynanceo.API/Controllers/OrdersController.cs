@@ -1,14 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Fynanceo.API.Data;
-using Fynanceo.API.Models.Entities;
+﻿using Fynanceo.API.Data;
 using Fynanceo.API.Models.DTOs;
+using Fynanceo.API.Models.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace Fynanceo.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class OrdersController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -18,206 +20,177 @@ namespace Fynanceo.API.Controllers
             _context = context;
         }
 
-        // POST: api/Orders (Para pedidos sem entrega)
-        [HttpPost]
-        public async Task<ActionResult<OrderDTO>> CreateOrder(CreateOrderDTO orderDto)
-        {
-            return await CreateOrderInternal(orderDto, false, null);
-        }
-
-        // POST: api/Orders/with-delivery (Para pedidos com entrega)
-        [HttpPost("with-delivery")]
-        public async Task<ActionResult<OrderDTO>> CreateOrderWithDelivery(CreateOrderWithDeliveryDTO orderDto)
-        {
-            return await CreateOrderInternal(orderDto, true, orderDto.DeliveryInfo);
-        }
-
-        private async Task<ActionResult<OrderDTO>> CreateOrderInternal(CreateOrderDTO orderDto, bool isDelivery, DeliveryInfoDTO deliveryInfoParam)
-        {
-            try
-            {
-                // Validações iniciais
-                if (orderDto.Items == null || orderDto.Items.Count == 0)
-                {
-                    return BadRequest(new { message = "O pedido deve conter pelo menos um item" });
-                }
-
-                if (isDelivery && deliveryInfoParam == null)
-                {
-                    return BadRequest(new { message = "Informações de entrega são obrigatórias para pedidos com delivery" });
-                }
-
-                if (isDelivery && string.IsNullOrEmpty(deliveryInfoParam.DeliveryAddress))
-                {
-                    return BadRequest(new { message = "Endereço de entrega é obrigatório" });
-                }
-
-                // Gerar número do pedido
-                var orderNumber = GenerateOrderNumber();
-
-                // Obter usuário atual
-                var userId = GetCurrentUserId();
-
-                var order = new Order
-                {
-                    OrderNumber = orderNumber,
-                    CustomerId = orderDto.CustomerId,
-                    UserId = userId,
-                    TotalAmount = orderDto.Items.Sum(item => item.Quantity * item.UnitPrice),
-                    Status = "Aberto",
-                    PaymentMethod = orderDto.PaymentMethod,
-                    IsDelivery = isDelivery,
-                    CreatedAt = DateTime.UtcNow,
-                    OrderItems = orderDto.Items.Select(item => new OrderItem
-                    {
-                        ProductId = item.ProductId,
-                        Quantity = item.Quantity,
-                        UnitPrice = item.UnitPrice,
-                        TotalPrice = item.Quantity * item.UnitPrice
-                    }).ToList()
-                };
-
-                // Validar e atualizar estoque
-                foreach (var item in orderDto.Items)
-                {
-                    var product = await _context.Products.FindAsync(item.ProductId);
-                    if (product == null)
-                    {
-                        throw new Exception($"Produto com ID {item.ProductId} não encontrado");
-                    }
-
-                    if (product.StockQuantity < item.Quantity)
-                    {
-                        throw new Exception($"Estoque insuficiente para o produto: {product.Name}. Disponível: {product.StockQuantity}, Solicitado: {item.Quantity}");
-                    }
-
-                    product.StockQuantity -= item.Quantity;
-                }
-
-                _context.Orders.Add(order);
-                await _context.SaveChangesAsync();
-
-                // Se for entrega, criar registro de delivery
-                if (isDelivery && deliveryInfoParam != null)
-                {
-                    var delivery = new Delivery
-                    {
-                        OrderId = order.Id,
-                        DeliveryPerson = deliveryInfoParam.DeliveryPerson,
-                        Status = "Pendente",
-                        DeliveryAddress = deliveryInfoParam.DeliveryAddress,
-                        CustomerPhone = deliveryInfoParam.CustomerPhone,
-                        EstimatedDeliveryTime = deliveryInfoParam.EstimatedDeliveryTime,
-                        CreatedAt = DateTime.UtcNow
-                    };
-
-                    _context.Deliveries.Add(delivery);
-                    await _context.SaveChangesAsync();
-                }
-           
-
-              // return CreatedAtAction("GetOrder", new { id = order.Id }, await GetOrderDTO(order.Id));
-                return Ok(await GetOrderDTO(order.Id));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
-        private async Task ValidateAndUpdateStock(List<CreateOrderItemDTO> items)
-        {
-            foreach (var item in items)
-            {
-                var product = await _context.Products.FindAsync(item.ProductId);
-                if (product == null)
-                {
-                    throw new Exception($"Produto com ID {item.ProductId} não encontrado");
-                }
-
-                if (product.StockQuantity < item.Quantity)
-                {
-                    throw new Exception($"Estoque insuficiente para o produto: {product.Name}. Disponível: {product.StockQuantity}, Solicitado: {item.Quantity}");
-                }
-
-                product.StockQuantity -= item.Quantity;
-            }
-        }
-
-        private async Task CreateDeliveryRecord(int orderId, DeliveryInfoDTO deliveryInfoDto)
-        {
-            var delivery = new Delivery
-            {
-                OrderId = orderId,
-                DeliveryPerson = deliveryInfoDto.DeliveryPerson, // Agora sem ambiguidade
-                DeliveryAddress = deliveryInfoDto.DeliveryAddress,
-                CustomerPhone = deliveryInfoDto.CustomerPhone,
-                EstimatedDeliveryTime = deliveryInfoDto.EstimatedDeliveryTime,
-                CreatedAt = DateTime.UtcNow
-            };
-
-
-            _context.Deliveries.Add(delivery);
-            await _context.SaveChangesAsync();
-        }
-
-        // GET: api/Orders
+        // GET: api/Orders?status=&customerId=&startDate=&endDate=&pageNumber=1&pageSize=10
         [HttpGet]
         public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrders(
-            [FromQuery] string status = null,
-            [FromQuery] DateTime? startDate = null,
-            [FromQuery] DateTime? endDate = null)
+            [FromQuery] string? status,
+            [FromQuery] int? customerId,
+            [FromQuery] DateTime? startDate,
+            [FromQuery] DateTime? endDate,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
         {
             var query = _context.Orders
                 .Include(o => o.Customer)
                 .Include(o => o.User)
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
+                .Include(o => o.Delivery)
                 .AsQueryable();
 
-            // ... (filtros existentes)
+            if (!string.IsNullOrEmpty(status))
+                query = query.Where(o => o.Status == status);
+
+            if (customerId.HasValue)
+                query = query.Where(o => o.CustomerId == customerId.Value);
+
+            if (startDate.HasValue)
+                query = query.Where(o => o.CreatedAt >= startDate.Value);
+
+            if (endDate.HasValue)
+                query = query.Where(o => o.CreatedAt <= endDate.Value);
+
+            var totalItems = await query.CountAsync();
 
             var orders = await query
                 .OrderByDescending(o => o.CreatedAt)
-                .Select(o => new OrderDTO
-                {
-                    Id = o.Id,
-                    OrderNumber = o.OrderNumber,
-                    CustomerId = o.CustomerId,
-                    CustomerName = o.Customer != null ? o.Customer.Name : "Cliente não identificado",
-                    UserId = o.UserId,
-                    UserName = o.User.Name,
-                    TotalAmount = o.TotalAmount,
-                    Status = o.Status,
-                    PaymentMethod = o.PaymentMethod,
-                    IsDelivery = o.IsDelivery,
-                    CreatedAt = o.CreatedAt,
-                    Items = o.OrderItems.Select(oi => new OrderItemDTO
-                    {
-                        Id = oi.Id,
-                        ProductId = oi.ProductId,
-                        ProductName = oi.Product.Name,
-                        Quantity = oi.Quantity,
-                        UnitPrice = oi.UnitPrice,
-                        TotalPrice = oi.TotalPrice
-                    }).ToList(),
-                    Delivery = o.Delivery != null ? new DeliveryDTO
-                    {
-                        Id = o.Delivery.Id,
-                        DeliveryPerson = o.Delivery.DeliveryPerson,
-                        Status = o.Delivery.Status,
-                        DeliveryAddress = o.Delivery.DeliveryAddress,
-                        CustomerPhone = o.Delivery.CustomerPhone,
-                        EstimatedDeliveryTime = o.Delivery.EstimatedDeliveryTime,
-                        ActualDeliveryTime = o.Delivery.ActualDeliveryTime
-                    } : null
-                })
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
-            return Ok(orders);
+            Response.Headers.Add("X-Total-Count", totalItems.ToString());
+
+            return orders.Select(MapToOrderDTO).ToList();
         }
 
-        // ... (outros métodos existentes)
+        // GET: api/Orders/stats
+        [HttpGet("stats")]
+        public async Task<ActionResult<DeliveryStatsDTO>> GetDeliveryStats()
+        {
+            var now = DateTime.UtcNow.Date;
+
+            var deliveries = await _context.Deliveries.ToListAsync();
+
+            var stats = new DeliveryStatsDTO
+            {
+                TotalDeliveries = deliveries.Count,
+                PendingDeliveries = deliveries.Count(d => d.Status == "Pendente"),
+                InProgressDeliveries = deliveries.Count(d => d.Status == "EmProgresso"),
+                CompletedDeliveries = deliveries.Count(d => d.Status == "Concluida"),
+                TodayDeliveries = deliveries.Count(d => d.EstimatedDeliveryTime.HasValue &&
+                                                       d.EstimatedDeliveryTime.Value.Date == now),
+                AverageDeliveryTime = deliveries
+                    .Where(d => d.ActualDeliveryTime.HasValue && d.EstimatedDeliveryTime.HasValue)
+                    .Select(d => (d.ActualDeliveryTime.Value - d.CreatedAt).TotalMinutes)
+                    .DefaultIfEmpty(0)
+                    .Average()
+            };
+
+            return stats;
+        }
+
+        // GET: api/Orders/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<OrderDTO>> GetOrder(int id)
+        {
+            var order = await _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.User)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                .Include(o => o.Delivery)
+                .FirstOrDefaultAsync(o => o.Id == id);
+
+            if (order == null) return NotFound();
+            return MapToOrderDTO(order);
+        }
+
+        // POST: api/Orders/create
+        [HttpPost("create")]
+        public async Task<ActionResult<OrderDTO>> CreateOrder([FromBody] CreateOrderDTO dto)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (dto.Items == null || !dto.Items.Any())
+                return BadRequest("O pedido deve conter ao menos um item.");
+            var orderNumber = GenerateOrderNumber();
+            var userId = GetCurrentUserId();
+            var order = new Order
+            {
+                CustomerId = dto.CustomerId,
+                UserId = userId,
+                PaymentMethod = dto.PaymentMethod,
+                Status = "Aberto",
+                IsDelivery = false,
+                CreatedAt = DateTime.UtcNow,
+                OrderNumber = orderNumber,
+                
+                OrderItems = new List<OrderItem>()
+                
+            };
+
+
+
+            //var errors = new List<string>();
+            //foreach (var item in dto.Items)
+            //{
+            //    var product = await _context.Products.FindAsync(item.ProductId);
+            //    if (product == null)
+            //    {
+            //        errors.Add($"Produto com ID {item.ProductId} não encontrado.");
+            //        continue;
+            //    }
+
+            //    if (item.Quantity <= 0)
+            //    {
+            //        errors.Add($"Quantidade do produto {product.Name} deve ser maior que zero.");
+            //        continue;
+            //    }
+
+            //    order.OrderItems.Add(new OrderItem
+            //    {
+            //        ProductId = item.ProductId,
+            //        Quantity = item.Quantity,
+            //        UnitPrice = item.UnitPrice,
+            //        TotalPrice = item.Quantity * item.UnitPrice
+            //    });
+            //}
+
+            //if (errors.Any()) return BadRequest(new { Errors = errors });
+            // 🔄 Processar itens via método separado
+            (List<OrderItem> items, List<string> errors) = await ProcessOrderItems(dto.Items);
+
+            if (errors.Any()) return BadRequest(new { Errors = errors });
+
+            order.OrderItems = items;
+            order.TotalAmount = items.Sum(i => i.TotalPrice);
+
+            order.TotalAmount = order.OrderItems.Sum(oi => oi.TotalPrice);
+
+            _context.Orders.Add(order);
+            await _context.SaveChangesAsync();
+
+            // 🔥 Recarregar com includes para DTO completo
+            var savedOrder = await _context.Orders
+       .Include(o => o.Customer)
+       .Include(o => o.User)
+       .Include(o => o.OrderItems).ThenInclude(oi => oi.Product)
+       .Include(o => o.Delivery)
+       .FirstOrDefaultAsync(o => o.Id == order.Id);
+
+            return MapToOrderDTO(savedOrder!);
+
+            //return MapToOrderDTO(order);
+        }
+
+        private int GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim != null && int.TryParse(userIdClaim, out int userId))
+            {
+                return userId;
+            }
+            throw new UnauthorizedAccessException("Não foi possível identificar o usuário logado");
+        }
 
         private string GenerateOrderNumber()
         {
@@ -240,61 +213,236 @@ namespace Fynanceo.API.Controllers
             }
         }
 
-        private int GetCurrentUserId()
+
+
+        // POST: api/Orders/create-delivery
+        [HttpPost("create-delivery")]
+        public async Task<ActionResult<OrderDTO>> CreateOrderWithDelivery([FromBody] CreateOrderWithDeliveryDTO dto)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userIdClaim != null && int.TryParse(userIdClaim, out int userId))
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (dto.Items == null || !dto.Items.Any())
+                return BadRequest("O pedido deve conter ao menos um item.");
+            if (dto.DeliveryInfo == null)
+                return BadRequest("Informações de entrega são obrigatórias.");
+
+            var orderNumber = GenerateOrderNumber();
+            var userId = GetCurrentUserId();
+            var order = new Order
             {
-                return userId;
+                CustomerId = dto.CustomerId,
+                UserId = userId,
+                PaymentMethod = dto.PaymentMethod,
+                Status = "Aberto",
+                IsDelivery = true,
+                CreatedAt = DateTime.UtcNow,
+                OrderNumber = orderNumber,
+                OrderItems = new List<OrderItem>()
+            };
+
+            var errors = new List<string>();
+            foreach (var item in dto.Items)
+            {
+                var product = await _context.Products.FindAsync(item.ProductId);
+                if (product == null) errors.Add($"Produto com ID {item.ProductId} não encontrado.");
+                else if (item.Quantity <= 0) errors.Add($"Quantidade do produto {product.Name} deve ser maior que zero.");
+                else
+                {
+                    order.OrderItems.Add(new OrderItem
+                    {
+                        ProductId = item.ProductId,
+                        Quantity = item.Quantity,
+                        UnitPrice = item.UnitPrice,
+                        TotalPrice = item.Quantity * item.UnitPrice
+                    });
+                }
             }
-            throw new UnauthorizedAccessException("Não foi possível identificar o usuário logado");
+
+            if (errors.Any()) return BadRequest(new { Errors = errors });
+            (List<OrderItem> items, List<string> errors2) = await ProcessOrderItems(dto.Items);
+
+
+            order.TotalAmount = order.OrderItems.Sum(oi => oi.TotalPrice);
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                _context.Orders.Add(order);
+                await _context.SaveChangesAsync();
+
+                var delivery = new Delivery
+                {
+                    OrderId = order.Id,
+                    DeliveryPerson = dto.DeliveryInfo.DeliveryPerson,
+                    DeliveryAddress = dto.DeliveryInfo.DeliveryAddress,
+                    CustomerPhone = dto.DeliveryInfo.CustomerPhone,
+                    EstimatedDeliveryTime = dto.DeliveryInfo.EstimatedDeliveryTime,
+                    Status = "Pendente",
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.Deliveries.Add(delivery);
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+                // 🔥 Recarregar com includes
+                var savedOrder = await _context.Orders
+                    .Include(o => o.Customer)
+                    .Include(o => o.User)
+                    .Include(o => o.OrderItems).ThenInclude(oi => oi.Product)
+                    .Include(o => o.Delivery)
+                    .FirstOrDefaultAsync(o => o.Id == order.Id);
+
+                return MapToOrderDTO(savedOrder!);
+                //return MapToOrderDTO(order);
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, "Erro ao criar pedido com entrega.");
+            }
         }
 
-        private async Task<OrderDTO> GetOrderDTO(int orderId)
+        // PUT: api/Orders/5/status
+        [HttpPut("{id}/status")]
+        public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateOrderStatusDTO dto)
+        {
+            var order = await _context.Orders.FindAsync(id);
+            if (order == null) return NotFound();
+
+            order.Status = dto.Status;
+            order.ModifiedAt = DateTime.UtcNow;
+            order.ModifiedByUserId = int.Parse(User.FindFirst("id")?.Value ?? "0");
+
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        // DELETE: api/Orders/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteOrder(int id)
         {
             var order = await _context.Orders
-                .Include(o => o.Customer)
-                .Include(o => o.User)
                 .Include(o => o.OrderItems)
-                    .ThenInclude(oi => oi.Product)
                 .Include(o => o.Delivery)
-                .Where(o => o.Id == orderId)
-                .Select(o => new OrderDTO
+                .FirstOrDefaultAsync(o => o.Id == id);
+
+            if (order == null) return NotFound();
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                if (order.OrderItems.Any()) _context.OrderItems.RemoveRange(order.OrderItems);
+                if (order.Delivery != null) _context.Deliveries.Remove(order.Delivery);
+
+                _context.Orders.Remove(order);
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+                return NoContent();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, "Erro ao deletar o pedido.");
+            }
+        }
+
+        private OrderDTO MapToOrderDTO(Order o)
+        {
+            return new OrderDTO
+            {
+                Id = o.Id,
+                OrderNumber = o.OrderNumber,
+                CustomerId = o.CustomerId,
+                CustomerName = o.Customer?.Name,
+                UserId = o.UserId,
+                UserName = o.User?.Name,
+                TotalAmount = o.TotalAmount,
+                Status = o.Status,
+                PaymentMethod = o.PaymentMethod,
+                IsDelivery = o.IsDelivery,
+                CreatedAt = o.CreatedAt,
+                Items = o.OrderItems.Select(oi => new OrderItemDTO
                 {
-                    Id = o.Id,
+                    Id = oi.Id,
+                    OrderId = oi.OrderId,
+                    ProductId = oi.ProductId,
+                    ProductName = oi.Product?.Name,
+                    Quantity = oi.Quantity,
+                    UnitPrice = oi.UnitPrice,
+                    TotalPrice = oi.TotalPrice
+                }).ToList(),
+                Delivery = o.Delivery != null ? new DeliveryDTO
+                {
+                    Id = o.Delivery.Id,
+                    OrderId = o.Delivery.OrderId,
+                    DeliveryPerson = o.Delivery.DeliveryPerson,
+                    Status = o.Delivery.Status,
+                    DeliveryAddress = o.Delivery.DeliveryAddress,
+                    CustomerPhone = o.Delivery.CustomerPhone,
+                    EstimatedDeliveryTime = o.Delivery.EstimatedDeliveryTime,
+                    ActualDeliveryTime = o.Delivery.ActualDeliveryTime,
+                    CreatedAt = o.Delivery.CreatedAt,
                     OrderNumber = o.OrderNumber,
-                    CustomerId = o.CustomerId,
-                    CustomerName = o.Customer != null ? o.Customer.Name : "Cliente não identificado",
-                    UserId = o.UserId,
-                    UserName = o.User.Name,
-                    TotalAmount = o.TotalAmount,
-                    Status = o.Status,
-                    PaymentMethod = o.PaymentMethod,
-                    IsDelivery = o.IsDelivery,
-                    CreatedAt = o.CreatedAt,
-                    Items = o.OrderItems.Select(oi => new OrderItemDTO
+                    CustomerName = o.Customer?.Name,
+                    CustomerAddress = o.Customer?.Address,
+                    OrderAmount = o.TotalAmount,
+                    OrderItems = o.OrderItems.Select(oi => new OrderItemDTO
                     {
                         Id = oi.Id,
+                        OrderId = oi.OrderId,
                         ProductId = oi.ProductId,
-                        ProductName = oi.Product.Name,
+                        ProductName = oi.Product?.Name,
                         Quantity = oi.Quantity,
                         UnitPrice = oi.UnitPrice,
                         TotalPrice = oi.TotalPrice
-                    }).ToList(),
-                    Delivery = o.Delivery != null ? new DeliveryDTO
-                    {
-                        Id = o.Delivery.Id,
-                        DeliveryPerson = o.Delivery.DeliveryPerson,
-                        Status = o.Delivery.Status,
-                        DeliveryAddress = o.Delivery.DeliveryAddress,
-                        CustomerPhone = o.Delivery.CustomerPhone,
-                        EstimatedDeliveryTime = o.Delivery.EstimatedDeliveryTime,
-                        ActualDeliveryTime = o.Delivery.ActualDeliveryTime
-                    } : null
-                })
-                .FirstOrDefaultAsync();
-
-            return order;
+                    }).ToList()
+                } : null
+            };
         }
+
+        //validação de estoque e atualização
+        private async Task<(List<OrderItem> items, List<string> errors)> ProcessOrderItems(List<CreateOrderItemDTO> dtoItems)
+        {
+            var items = new List<OrderItem>();
+            var errors = new List<string>();
+
+            foreach (var item in dtoItems)
+            {
+                var product = await _context.Products.FindAsync(item.ProductId);
+                if (product == null)
+                {
+                    errors.Add($"Produto com ID {item.ProductId} não encontrado.");
+                    continue;
+                }
+
+                if (item.Quantity <= 0)
+                {
+                    errors.Add($"Quantidade do produto {product.Name} deve ser maior que zero.");
+                    continue;
+                }
+
+                if (product.StockQuantity < item.Quantity)
+                {
+                    errors.Add($"Estoque insuficiente para o produto {product.Name}. Disponível: {product.StockQuantity}");
+                    continue;
+                }
+
+                // Atualizar estoque
+                product.StockQuantity -= item.Quantity;
+
+                items.Add(new OrderItem
+                {
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.UnitPrice,
+                    TotalPrice = item.Quantity * item.UnitPrice
+                });
+            }
+
+            return (items, errors);
+        }
+
+
+
     }
 }

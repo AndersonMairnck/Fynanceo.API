@@ -1,7 +1,5 @@
 ﻿import axios from 'axios';
 
-
-
 // Vite usa import.meta.env em vez de process.env
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 console.log('Conectando com API em:', API_BASE_URL);
@@ -19,19 +17,12 @@ api.interceptors.request.use(
         }
         return config;
     },
-    (error) => {
-        return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
 );
-
-
 
 // Interceptor para tratar erros de autenticação
 api.interceptors.response.use(
-    (response) => {
-        // ✅ Retorna diretamente a resposta para status 2xx
-        return response;
-    },
+    (response) => response,
     (error) => {
         if (error.response?.status === 401) {
             localStorage.removeItem('token');
@@ -39,7 +30,6 @@ api.interceptors.response.use(
             window.location.href = '/login';
         }
 
-        // ✅ Melhor tratamento de erro
         const errorMessage = error.response?.data?.message ||
             error.response?.statusText ||
             error.message ||
@@ -51,13 +41,14 @@ api.interceptors.response.use(
     }
 );
 
-
+// Auth
 export const authAPI = {
     login: (credentials) => api.post('/auth/login', credentials),
     register: (userData) => api.post('/auth/register', userData),
-    //verifyToken: () => api.get('/auth/verify'),
+    // verifyToken: () => api.get('/auth/verify'),
 };
 
+// Products
 export const productsAPI = {
     getAll: () => api.get('/products'),
     getById: (id) => api.get(`/products/${id}`),
@@ -66,17 +57,32 @@ export const productsAPI = {
     deactivate: (id, reason) => api.patch(`/products/deactivate/${id}`, { reason }),
     activate: (id) => api.patch(`/products/activate/${id}`),
 };
+
+// Orders
 export const ordersAPI = {
     // Pedido normal (sem entrega)
-    create: (order) => api.post('/orders', order),
+    create: (order) => api.post('/orders/create', order),
 
-    // Pedido com entrega - CORRIGIDO
-    createWithDelivery: (orderWithDelivery) => api.post('/orders/with-delivery', orderWithDelivery),
+    // Pedido com entrega
+    createWithDelivery: (orderWithDelivery) => api.post('/orders/create-delivery', orderWithDelivery),
 
-    // Outras funções existentes
-    getAll: () => api.get('/orders'),
+    // Buscar todos pedidos com filtros e paginação
+    getAll: (filters = {}, pageNumber = 1, pageSize = 10) => {
+        const params = { ...filters, pageNumber, pageSize };
+        return api.get('/orders', { params });
+    },
+
+    // Buscar pedido por id
     getById: (id) => api.get(`/orders/${id}`),
+
+    // Atualizar status
     updateStatus: (id, statusData) => api.patch(`/orders/${id}/status`, statusData),
+
+    // Cancelar pedido
     cancel: (id) => api.delete(`/orders/${id}`),
+
+    // Estatísticas de entregas
+    getDeliveryStats: () => api.get('/orders/stats'),
 };
+
 export default api;

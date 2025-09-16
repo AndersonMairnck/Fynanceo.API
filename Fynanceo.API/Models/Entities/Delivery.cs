@@ -14,7 +14,7 @@ namespace Fynanceo.API.Models.Entities
         public string Status { get; set; } = "Pendente";
         public string DeliveryAddress { get; set; }
         public string CustomerPhone { get; set; }
-       // public string Notes { get; set; } // Novo campo para observações
+        // public string Notes { get; set; } // Novo campo para observações
 
         public DateTime? EstimatedDeliveryTime { get; set; }
         public DateTime? ActualDeliveryTime { get; set; }

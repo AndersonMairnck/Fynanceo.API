@@ -38,7 +38,6 @@ namespace Fynanceo.API.Models.Entities
         public DateTime? ModifiedAt { get; set; }
         public string? ModifiedReason { get; set; }
         public int? ModifiedByUserId { get; set; }
-
         // Navigation properties
         public virtual ICollection<OrderItem> OrderItems { get; set; }
         public virtual Delivery Delivery { get; set; }

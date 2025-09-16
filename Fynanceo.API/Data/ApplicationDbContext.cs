@@ -1,6 +1,6 @@
 ﻿// Data/ApplicationDbContext.cs
-using Microsoft.EntityFrameworkCore;
 using Fynanceo.API.Models.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fynanceo.API.Data
 {

@@ -23,6 +23,14 @@ namespace Fynanceo.API.Models.Entities
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+     
+
+        // Adicione esta linha
+        public DateTime? UpdatedAt { get; set; }
+
+        // Para soft delete
+        public bool IsActive { get; set; } = true;
+
         // Navigation property
         public virtual ICollection<Order> Orders { get; set; }
     }

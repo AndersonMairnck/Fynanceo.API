@@ -28,11 +28,8 @@ namespace Fynanceo.API.Controllers
                 .Include(p => p.Category)
                 .AsQueryable();
 
-            // Filtrar apenas ativos por padrão
             if (!includeInactive)
-            {
                 query = query.Where(p => p.IsActive);
-            }
 
             var products = await query
                 .Select(p => new ProductDTO
@@ -76,14 +73,13 @@ namespace Fynanceo.API.Controllers
                     CategoryId = p.CategoryId,
                     CategoryName = p.Category.Name,
                     IsActive = p.IsActive,
-                    CreatedAt = p.CreatedAt
+                    CreatedAt = p.CreatedAt,
+                    ModifiedAt = p.ModifiedAt
                 })
                 .FirstOrDefaultAsync();
 
             if (product == null)
-            {
                 return NotFound();
-            }
 
             return product;
         }
@@ -92,6 +88,17 @@ namespace Fynanceo.API.Controllers
         [HttpPost]
         public async Task<ActionResult<ProductDTO>> PostProduct(CreateProductDTO createProductDto)
         {
+            if (createProductDto.Price < 0 || createProductDto.CostPrice < 0 ||
+                createProductDto.StockQuantity < 0 || createProductDto.MinStockLevel < 0)
+            {
+                return BadRequest("Valores de preço, custo ou estoque não podem ser negativos.");
+            }
+
+            if (_context.Products.Any(p => p.Name == createProductDto.Name && p.IsActive))
+            {
+                return BadRequest("Já existe um produto ativo com este nome.");
+            }
+
             var product = new Product
             {
                 Name = createProductDto.Name,
@@ -108,7 +115,6 @@ namespace Fynanceo.API.Controllers
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
 
-            // Recarregar com categoria para retornar o DTO completo
             await _context.Entry(product).Reference(p => p.Category).LoadAsync();
 
             var productDto = new ProductDTO
@@ -134,9 +140,18 @@ namespace Fynanceo.API.Controllers
         public async Task<IActionResult> PutProduct(int id, CreateProductDTO updateProductDto)
         {
             var product = await _context.Products.FindAsync(id);
-            if (product == null)
-            {
+            if (product == null || !product.IsActive)
                 return NotFound();
+
+            if (updateProductDto.Price < 0 || updateProductDto.CostPrice < 0 ||
+                updateProductDto.StockQuantity < 0 || updateProductDto.MinStockLevel < 0)
+            {
+                return BadRequest("Valores de preço, custo ou estoque não podem ser negativos.");
+            }
+
+            if (_context.Products.Any(p => p.Id != id && p.Name == updateProductDto.Name && p.IsActive))
+            {
+                return BadRequest("Já existe um produto ativo com este nome.");
             }
 
             product.Name = updateProductDto.Name;
@@ -145,89 +160,47 @@ namespace Fynanceo.API.Controllers
             product.CostPrice = updateProductDto.CostPrice;
             product.StockQuantity = updateProductDto.StockQuantity;
             product.MinStockLevel = updateProductDto.MinStockLevel;
-            //product.CategoryId = updateProductDto.CategoryId;
+            product.CategoryId = updateProductDto.CategoryId;
+            product.ModifiedAt = DateTime.UtcNow;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ProductExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(product);
         }
 
-        //// DELETE: api/Products/5
-        //[HttpDelete("{id}")]
-        //public async Task<IActionResult> DeleteProduct(int id)
-        //{
-        //    var product = await _context.Products.FindAsync(id);
-        //    if (product == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    product.IsActive = false;
-        //    await _context.SaveChangesAsync();
-
-        //    return NoContent();
-        //}
-        // Controllers/ProductsController.cs
+        // PATCH: api/Products/deactivate/5
         [HttpPatch("deactivate/{id}")]
         public async Task<IActionResult> DeactivateProduct(int id, [FromBody] DeactivateRequest request)
         {
             var product = await _context.Products.FindAsync(id);
             if (product == null)
-            {
                 return NotFound();
-            }
 
             if (!product.IsActive)
-            {
-                return BadRequest("Produto já está desativado");
-            }
+                return BadRequest("Produto já está desativado.");
 
-            // Soft delete - mantém todos os dados, apenas desativa
             product.IsActive = false;
             product.DeactivatedAt = DateTime.UtcNow;
             product.DeactivatedReason = request?.Reason;
-            product.DeactivatedByUserId = GetCurrentUserId(); // Método para obter ID do usuário logado
+            product.DeactivatedByUserId = GetCurrentUserId();
             product.ModifiedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 
-            return Ok(new
-            {
-                Message = "Produto desativado com sucesso",
-                ProductId = product.Id,
-                DeactivatedAt = product.DeactivatedAt
-            });
+            return Ok(product);
         }
 
+        // PATCH: api/Products/activate/5
         [HttpPatch("activate/{id}")]
         public async Task<IActionResult> ActivateProduct(int id)
         {
             var product = await _context.Products.FindAsync(id);
             if (product == null)
-            {
                 return NotFound();
-            }
 
             if (product.IsActive)
-            {
-                return BadRequest("Produto já está ativo");
-            }
+                return BadRequest("Produto já está ativo.");
 
-            // Reativar o produto
             product.IsActive = true;
             product.DeactivatedAt = null;
             product.DeactivatedReason = null;
@@ -236,27 +209,16 @@ namespace Fynanceo.API.Controllers
 
             await _context.SaveChangesAsync();
 
-            return Ok(new
-            {
-                Message = "Produto reativado com sucesso",
-                ProductId = product.Id
-            });
+            return Ok(product);
         }
 
-        // Método auxiliar para obter ID do usuário logado
-        private int? GetCurrentUserId()
+        private int GetCurrentUserId()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
-            {
-                return userId;
-            }
-            return null;
-        }
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                throw new UnauthorizedAccessException("Não foi possível identificar o usuário logado.");
 
-        private bool ProductExists(int id)
-        {
-            return _context.Products.Any(e => e.Id == id && e.IsActive);
+            return userId;
         }
     }
 }

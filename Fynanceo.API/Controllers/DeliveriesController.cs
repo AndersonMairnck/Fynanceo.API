@@ -1,8 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Fynanceo.API.Data;
-using Fynanceo.API.Models.Entities;
+﻿using Fynanceo.API.Data;
 using Fynanceo.API.Models.DTOs;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fynanceo.API.Controllers
 {

@@ -1,7 +1,7 @@
 ﻿// Controllers/AuthController.cs
-using Microsoft.AspNetCore.Mvc;
 using Fynanceo.API.Models.DTOs;
 using Fynanceo.API.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Fynanceo.API.Controllers
 {

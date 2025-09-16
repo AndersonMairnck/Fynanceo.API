@@ -52,7 +52,8 @@ function App() {
                             <Route path="/reports" element={<div>Relatórios (em breve)</div>} />
                             <Route path="/pdv" element={<PDV />} />
                             <Route path="/pdv-dashboard" element={<PdvDashboard />} />
-
+      
+                           
                             <Route path="/" element={<Navigate to="/dashboard" />} />
                         </Routes>
                     </div>

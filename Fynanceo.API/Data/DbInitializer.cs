@@ -1,7 +1,7 @@
 ﻿// Data/DbInitializer.cs
+using Fynanceo.API.Models.Entities;
 using System.Security.Cryptography;
 using System.Text;
-using Fynanceo.API.Models.Entities;
 
 namespace Fynanceo.API.Data
 {
