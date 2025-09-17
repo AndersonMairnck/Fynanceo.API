@@ -2,6 +2,7 @@
 using FluentValidation.AspNetCore;
 using Fynanceo.API.Data;
 using Fynanceo.API.Models.DTOs;
+using Fynanceo.API.Services;
 using Fynanceo.API.Services.Implementations;
 using Fynanceo.API.Services.Interfaces;
 using Fynanceo.API.Validators;

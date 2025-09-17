@@ -1516,8 +1516,28 @@
             "type": "string",
             "nullable": true
           },
-          "address": {
+          "bairro": {
             "maxLength": 500,
+            "type": "string",
+            "nullable": true
+          },
+          "cidade": {
+            "type": "string",
+            "nullable": true
+          },
+          "estado": {
+            "type": "string",
+            "nullable": true
+          },
+          "cep": {
+            "type": "string",
+            "nullable": true
+          },
+          "complemento": {
+            "type": "string",
+            "nullable": true
+          },
+          "rua": {
             "type": "string",
             "nullable": true
           },
@@ -1532,13 +1552,6 @@
           },
           "isActive": {
             "type": "boolean"
-          },
-          "orders": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Order"
-            },
-            "nullable": true
           }
         },
         "additionalProperties": false

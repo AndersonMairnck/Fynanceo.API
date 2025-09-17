@@ -123,9 +123,9 @@ namespace Fynanceo.API.Controllers
                 IsDelivery = false,
                 CreatedAt = DateTime.UtcNow,
                 OrderNumber = orderNumber,
-                
+
                 OrderItems = new List<OrderItem>()
-                
+
             };
 
 
@@ -384,7 +384,7 @@ namespace Fynanceo.API.Controllers
                     CreatedAt = o.Delivery.CreatedAt,
                     OrderNumber = o.OrderNumber,
                     CustomerName = o.Customer?.Name,
-                    CustomerAddress = o.Customer?.Address,
+                    CustomerAddress = o.Customer?.Rua,
                     OrderAmount = o.TotalAmount,
                     OrderItems = o.OrderItems.Select(oi => new OrderItemDTO
                     {

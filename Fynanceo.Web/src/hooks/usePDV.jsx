@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect, useCallback } from 'react';
-import api, { productsAPI, ordersAPI } from '../../../services/api';
+import api, { productsAPI, ordersAPI } from '../services/api';
 
 export const usePDV = () => {
     const [products, setProducts] = useState([]);

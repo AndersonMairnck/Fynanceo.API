@@ -14,6 +14,10 @@ import PDV from './components/PDV/PDV';
 import PdvDashboard from './components/PDV/PdvDashboard';
 import './App.css';
 
+import Customers from './components/Customers/Customers';
+import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
+
+
 const theme = createTheme({
     palette: {
         primary: {
@@ -46,14 +50,19 @@ function App() {
                             <Route path="/products/view/:id" element={<ProductView />} />
                             <Route path="/orders" element={<OrderList />} />
                             <Route path="/orders/new" element={<OrderForm />} />
-                            <Route path="/customers" element={<div>Clientes (em breve)</div>} />
+                            <Route path="/customers" element={
+                                <ErrorBoundary>
+                                    <Customers />
+                                </ErrorBoundary>
+                            } />
                             <Route path="/categories" element={<div>Categorias (em breve)</div>} />
                             <Route path="/deliveries" element={<div>Entregas (em breve)</div>} />
                             <Route path="/reports" element={<div>Relatórios (em breve)</div>} />
                             <Route path="/pdv" element={<PDV />} />
                             <Route path="/pdv-dashboard" element={<PdvDashboard />} />
-      
-                           
+                            
+
+
                             <Route path="/" element={<Navigate to="/dashboard" />} />
                         </Routes>
                     </div>

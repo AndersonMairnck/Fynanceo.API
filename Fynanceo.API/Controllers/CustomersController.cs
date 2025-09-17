@@ -19,6 +19,7 @@ namespace Fynanceo.API.Controllers
         }
 
         // GET: api/Customers
+        //Este método retorna uma lista de todos os clientes ativos no banco de dados
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers()
         {
@@ -30,6 +31,7 @@ namespace Fynanceo.API.Controllers
 
         // GET: api/Customers/5
         [HttpGet("{id}")]
+        //Este método busca e retorna um único cliente pelo seu id
         public async Task<ActionResult<Customer>> GetCustomer(int id)
         {
             var customer = await _context.Customers.FindAsync(id);
@@ -43,6 +45,7 @@ namespace Fynanceo.API.Controllers
         }
 
         // POST: api/Customers
+        // Este método cria um novo cliente. Antes de adicioná-lo ao banco de dados, ele realiza uma validação: verifica se já existe um cliente ativo com o mesmo endereço de e-mail
         [HttpPost]
         public async Task<ActionResult<Customer>> PostCustomer(Customer customer)
         {
@@ -67,6 +70,7 @@ namespace Fynanceo.API.Controllers
         }
 
         // PUT: api/Customers/5
+        //Este método atualiza as informações de um cliente existente.
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCustomer(int id, Customer customer)
         {
@@ -94,10 +98,10 @@ namespace Fynanceo.API.Controllers
             //}
 
             //return NoContent();
-            if (id != customer.Id)
-            {
-                return BadRequest();
-            }
+            //if (id != customer.Id)
+            //{
+            //    return BadRequest();
+            //}
 
             var existingCustomer = await _context.Customers.FindAsync(id);
             if (existingCustomer == null || !existingCustomer.IsActive)
@@ -109,14 +113,22 @@ namespace Fynanceo.API.Controllers
             existingCustomer.Email = customer.Email;
             existingCustomer.Phone = customer.Phone;
             existingCustomer.UpdatedAt = DateTime.UtcNow;
+            existingCustomer.Bairro = customer.Bairro;
+            existingCustomer.Estado = customer.Estado;
+            existingCustomer.Cep = customer.Cep;
+            existingCustomer.Cidade = customer.Cidade;
+            existingCustomer.Complemento = customer.Complemento;
+            existingCustomer.Rua = customer.Rua;
+            
 
             _context.Entry(existingCustomer).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return CreatedAtAction("GetCustomer", new { id = customer.Id }, customer);
         }
 
         // DELETE: api/Customers/5
+        //Este método não exclui o cliente do banco de dados, mas sim o desativa(conhecido como "soft delete"). Ele busca o cliente pelo id
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCustomer(int id)
         {

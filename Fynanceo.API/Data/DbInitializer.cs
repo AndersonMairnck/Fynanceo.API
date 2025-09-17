@@ -91,7 +91,7 @@ namespace Fynanceo.API.Data
                     Name = "Cliente Exemplo",
                     Phone = "(11) 99999-9999",
                     Email = "cliente@exemplo.com",
-                    Address = "Rua Exemplo, 123 - Centro",
+                    Rua = "Rua Exemplo, 123 - Centro",
                     CreatedAt = DateTime.UtcNow
                 };
 

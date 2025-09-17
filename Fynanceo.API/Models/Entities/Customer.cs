@@ -19,8 +19,13 @@ namespace Fynanceo.API.Models.Entities
         public string Email { get; set; }
 
         [MaxLength(500)]
-        public string Address { get; set; }
-
+      
+        public string Bairro { get; set; }
+        public string Cidade { get; set; }
+        public string Estado { get; set; }
+        public string Cep { get; set; }
+        public string? Complemento { get; set; }
+        public string Rua { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
      
@@ -32,6 +37,6 @@ namespace Fynanceo.API.Models.Entities
         public bool IsActive { get; set; } = true;
 
         // Navigation property
-        public virtual ICollection<Order> Orders { get; set; }
+        //public virtual ICollection<Order> Orders { get; set; }
     }
 }

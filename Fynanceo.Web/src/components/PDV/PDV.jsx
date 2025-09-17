@@ -9,7 +9,7 @@ import {
 import { ShoppingCart as CartIcon, Inventory as ProductsIcon } from '@mui/icons-material';
 
 import Layout from '../Layout/Layout';
-import { usePDV } from './hooks/usePDV'; // Import correto
+import { usePDV } from '../../hooks/usePDV'; // Import correto
 import ProductsTab from './components/ProductsTab'; // Import correto
 import CartTab from './components/CartTab'; // Import correto
 import CustomerDialog from './components/CustomerDialog'; // Import correto
