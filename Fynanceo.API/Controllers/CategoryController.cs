@@ -30,14 +30,13 @@ namespace Fynanceo.API.Controllers
         public async Task<ActionResult<Category>> GetCategory(int id)
         {
             var category = await _context.Categories.FindAsync(id);
-
             if (category == null || !category.IsActive)
             {
                 return NotFound();
             }
-
             return category;
         }
+
 
         // POST: api/Categories
         [HttpPost]
@@ -56,30 +55,25 @@ namespace Fynanceo.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCategory(int id, Category category)
         {
-            if (id != category.Id)
+
+
+           
+            var existecategorias = await _context.Categories.FindAsync(id);
+            if (existecategorias == null || !existecategorias.IsActive)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(category).State = EntityState.Modified;
+            existecategorias.Name = category.Name;
+            existecategorias.Description = category.Description;
+          
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CategoryExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
 
-            return NoContent();
+            _context.Entry(existecategorias).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return CreatedAtAction("GetCategory", new { id = existecategorias.Id }, existecategorias);
+
+            //return CreatedAtAction("GetCategories", new { id = category.Id }, category);
         }
 
         // DELETE: api/Categories/5

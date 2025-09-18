@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Fynanceo.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2c47eed24c442740b79d0629e96b6fc8c19c1e9c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1a8ab8141a1330e7304e63514534c5ef538954e3")]
 [assembly: System.Reflection.AssemblyProductAttribute("Fynanceo.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Fynanceo.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

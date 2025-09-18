@@ -16,6 +16,7 @@ import './App.css';
 
 import Customers from './components/Customers/Customers';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
+import Categories from './components/Categories/Categories';
 
 
 const theme = createTheme({
@@ -55,11 +56,13 @@ function App() {
                                     <Customers />
                                 </ErrorBoundary>
                             } />
-                            <Route path="/categories" element={<div>Categorias (em breve)</div>} />
+                            <Route path="/categories" element={<Categories/>} />
                             <Route path="/deliveries" element={<div>Entregas (em breve)</div>} />
                             <Route path="/reports" element={<div>Relatórios (em breve)</div>} />
                             <Route path="/pdv" element={<PDV />} />
                             <Route path="/pdv-dashboard" element={<PdvDashboard />} />
+                            <Route path="/categorias" element={
+                                  <ErrorBoundary> <Categories />  </ErrorBoundary>} />
                             
 
 

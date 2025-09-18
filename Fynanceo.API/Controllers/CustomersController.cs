@@ -74,34 +74,7 @@ namespace Fynanceo.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCustomer(int id, Customer customer)
         {
-            //if (id != customer.Id)
-            //{
-            //    return BadRequest();
-            //}
-
-            //_context.Entry(customer).State = EntityState.Modified;
-
-            //try
-            //{
-            //    await _context.SaveChangesAsync();
-            //}
-            //catch (DbUpdateConcurrencyException)
-            //{
-            //    if (!CustomerExists(id))
-            //    {
-            //        return NotFound();
-            //    }
-            //    else
-            //    {
-            //        throw;
-            //    }
-            //}
-
-            //return NoContent();
-            //if (id != customer.Id)
-            //{
-            //    return BadRequest();
-            //}
+            
 
             var existingCustomer = await _context.Customers.FindAsync(id);
             if (existingCustomer == null || !existingCustomer.IsActive)
