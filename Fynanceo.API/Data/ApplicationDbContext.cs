@@ -46,74 +46,7 @@ namespace Fynanceo.API.Data
                 entity.Property(u => u.CreatedAt).HasDefaultValueSql("NOW()");
             });
 
-            //modelBuilder.Entity<Product>(entity =>
-            //{
-            //    entity.Property(p => p.Price).HasColumnType("decimal(18,2)");
-            //    entity.Property(p => p.CostPrice).HasColumnType("decimal(18,2)");
-            //    entity.Property(p => p.IsActive).HasDefaultValue(true);
-            //    entity.Property(p => p.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
-
-            //    entity.HasOne(p => p.Category)
-            //        .WithMany(c => c.Products)
-            //        .HasForeignKey(p => p.CategoryId)
-            //        .OnDelete(DeleteBehavior.Restrict);
-            //});
-
-            //modelBuilder.Entity<Category>(entity =>
-            //{
-            //    entity.Property(c => c.IsActive).HasDefaultValue(true);
-            //    entity.Property(c => c.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
-            //});
-
-            //modelBuilder.Entity<Order>(entity =>
-            //{
-            //    entity.Property(o => o.TotalAmount).HasColumnType("decimal(18,2)");
-            //    entity.Property(o => o.Status).HasDefaultValue("Aberto");
-            //    entity.Property(o => o.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
-
-            //    entity.HasOne(o => o.Customer)
-            //        .WithMany(c => c.Orders)
-            //        .HasForeignKey(o => o.CustomerId)
-            //        .OnDelete(DeleteBehavior.Restrict);
-
-            //    entity.HasOne(o => o.User)
-            //        .WithMany()
-            //        .HasForeignKey(o => o.UserId)
-            //        .OnDelete(DeleteBehavior.Restrict);
-            //});
-
-            //modelBuilder.Entity<OrderItem>(entity =>
-            //{
-            //    entity.Property(oi => oi.UnitPrice).HasColumnType("decimal(18,2)");
-            //    entity.Property(oi => oi.TotalPrice).HasColumnType("decimal(18,2)");
-
-            //    entity.HasOne(oi => oi.Order)
-            //        .WithMany(o => o.OrderItems)
-            //        .HasForeignKey(oi => oi.OrderId)
-            //        .OnDelete(DeleteBehavior.Cascade);
-
-            //    entity.HasOne(oi => oi.Product)
-            //        .WithMany(p => p.OrderItems)
-            //        .HasForeignKey(oi => oi.ProductId)
-            //        .OnDelete(DeleteBehavior.Restrict);
-            //});
-
-            //modelBuilder.Entity<Customer>(entity =>
-            //{
-            //    entity.Property(c => c.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
-            //});
-
-            //modelBuilder.Entity<Delivery>(entity =>
-            //{
-            //    entity.Property(d => d.Status).HasDefaultValue("Pendente");
-            //    entity.Property(d => d.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
-
-            //    entity.HasOne(d => d.Order)
-            //        .WithOne(o => o.Delivery)
-            //        .HasForeignKey<Delivery>(d => d.OrderId)
-            //        .OnDelete(DeleteBehavior.Cascade);
-            //});
-            // Alterar todas as configurações de data para PostgreSQL
+            
             modelBuilder.Entity<Product>(entity =>
             {
                 entity.Property(p => p.CreatedAt).HasDefaultValueSql("NOW()");

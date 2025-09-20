@@ -5,6 +5,7 @@
     {
         public int? CustomerId { get; set; }
         public string PaymentMethod { get; set; }
+        public string DeliveryType { get; set; } // Adicionar esta linha
         public List<CreateOrderItemDTO> Items { get; set; }
     }
 
@@ -13,13 +14,7 @@
         public DeliveryInfoDTO DeliveryInfo { get; set; }
     }
 
-    public class DeliveryInfoDTO
-    {
-        public string DeliveryPerson { get; set; }
-        public string DeliveryAddress { get; set; }
-        public string CustomerPhone { get; set; }
-        public DateTime? EstimatedDeliveryTime { get; set; }
-    }
+   
 
     public class CreateOrderItemDTO
     {
@@ -44,6 +39,7 @@
         public DateTime CreatedAt { get; set; }
         public List<OrderItemDTO> Items { get; set; }
         public DeliveryDTO Delivery { get; set; }
+        public string DeliveryType { get;  set; }
     }
 
     public class OrderItemDTO
@@ -62,24 +58,5 @@
         public string Status { get; set; }
     }
 
-    // DTO para entregas (se necessário)
-    public class DeliveryDTO
-    {
-        public int Id { get; set; }
-        public int OrderId { get; set; }
-        public string DeliveryPerson { get; set; }
-        public string Status { get; set; }
-        public string DeliveryAddress { get; set; }
-        public string CustomerPhone { get; set; }
-        public DateTime? EstimatedDeliveryTime { get; set; }
-        public DateTime? ActualDeliveryTime { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public string OrderNumber { get; set; }
-
-        public string CustomerName { get; set; }
-        public string CustomerAddress { get; set; }
-        public decimal OrderAmount { get; set; }
-        public List<OrderItemDTO> OrderItems { get; set; }
-
-    }
+    
 }

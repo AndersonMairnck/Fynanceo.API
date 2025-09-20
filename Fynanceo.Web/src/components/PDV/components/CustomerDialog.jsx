@@ -44,7 +44,7 @@ const CustomerDialog = ({ open, onClose, customers, setSelectedCustomer }) => (
                                     </Typography>
                                     <br />
                                     <Typography component="span" variant="caption" color="text.secondary">
-                                        {customer.address || 'Endereço não informado'}
+                                        {customer.bairro || 'Endereço não informado'}
                                     </Typography>
                                 </>
                             }

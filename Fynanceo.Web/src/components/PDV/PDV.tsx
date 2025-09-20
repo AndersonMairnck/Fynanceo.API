@@ -1,4 +1,4 @@
-﻿import React, { useEffect } from 'react';
+﻿	import React, { useEffect } from 'react';
 import {
     Box,
     Typography,
@@ -9,10 +9,10 @@ import {
 import { ShoppingCart as CartIcon, Inventory as ProductsIcon } from '@mui/icons-material';
 
 import Layout from '../Layout/Layout';
-import { usePDV } from '../../hooks/usePDV'; // Import correto
-import ProductsTab from './components/ProductsTab'; // Import correto
-import CartTab from './components/CartTab'; // Import correto
-import CustomerDialog from './components/CustomerDialog'; // Import correto
+import { usePDV } from '../../hooks/usePDV';
+import ProductsTab from './components/ProductsTab';
+import CartTab from './components/CartTab';
+import CustomerDialog from './components/CustomerDialog';
 
 const PDV = () => {
     const {
@@ -21,19 +21,21 @@ const PDV = () => {
         customers,
         selectedCustomer,
         paymentMethod,
-        isDelivery,
+        deliveryType,
+        deliveryTypeOptions,
         deliveryAddress,
         deliveryNotes,
         searchTerm,
         openCustomerDialog,
         loading,
+        products, // ← Adicionado aqui
         filteredProducts,
         activeTab,
 
         // Actions
         setSelectedCustomer,
         setPaymentMethod,
-        setIsDelivery,
+        setDeliveryType,
         setDeliveryAddress,
         setDeliveryNotes,
         setSearchTerm,
@@ -45,7 +47,7 @@ const PDV = () => {
         getCartTotal,
         handleCheckout,
         loadProducts,
-        clearCart // Adicione esta função ao hook
+        clearCart
     } = usePDV();
 
     // Adiciona event listeners para atalhos de teclado
@@ -54,7 +56,7 @@ const PDV = () => {
             // Foca na busca quando pressionar Ctrl+F
             if (e.ctrlKey && e.key === 'f') {
                 e.preventDefault();
-                const searchInput = document.querySelector('input[placeholder="Pesquisar produtos..."]');
+                const searchInput = document.querySelector('input[placeholder*="Pesquisar produtos"]');
                 if (searchInput) searchInput.focus();
             }
 
@@ -123,6 +125,7 @@ const PDV = () => {
                         filteredProducts={filteredProducts}
                         addToCart={addToCart}
                         loadProducts={loadProducts}
+                        products={products} // ← Passando products como prop
                     />
                 )}
 
@@ -131,14 +134,16 @@ const PDV = () => {
                     <CartTab
                         cart={cart}
                         selectedCustomer={selectedCustomer}
+                        setSelectedCustomer={setSelectedCustomer}  // ← Certifique-se de que esta prop está sendo passada
+                        
                         setOpenCustomerDialog={setOpenCustomerDialog}
                         updateQuantity={updateQuantity}
                         removeFromCart={removeFromCart}
                         getCartTotal={getCartTotal}
                         paymentMethod={paymentMethod}
                         setPaymentMethod={setPaymentMethod}
-                        isDelivery={isDelivery}
-                        setIsDelivery={setIsDelivery}
+                        deliveryType={deliveryType}
+                        setDeliveryType={setDeliveryType}
                         deliveryAddress={deliveryAddress}
                         setDeliveryAddress={setDeliveryAddress}
                         deliveryNotes={deliveryNotes}
@@ -146,6 +151,7 @@ const PDV = () => {
                         handleCheckout={handleCheckout}
                         loading={loading}
                         setActiveTab={setActiveTab}
+                        customers={customers}
                     />
                 )}
 

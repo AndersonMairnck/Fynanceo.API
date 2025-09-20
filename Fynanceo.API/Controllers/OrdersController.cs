@@ -123,40 +123,14 @@ namespace Fynanceo.API.Controllers
                 IsDelivery = false,
                 CreatedAt = DateTime.UtcNow,
                 OrderNumber = orderNumber,
-
+                DeliveryType =  dto.DeliveryType,
                 OrderItems = new List<OrderItem>()
-
+               
             };
 
 
 
-            //var errors = new List<string>();
-            //foreach (var item in dto.Items)
-            //{
-            //    var product = await _context.Products.FindAsync(item.ProductId);
-            //    if (product == null)
-            //    {
-            //        errors.Add($"Produto com ID {item.ProductId} não encontrado.");
-            //        continue;
-            //    }
-
-            //    if (item.Quantity <= 0)
-            //    {
-            //        errors.Add($"Quantidade do produto {product.Name} deve ser maior que zero.");
-            //        continue;
-            //    }
-
-            //    order.OrderItems.Add(new OrderItem
-            //    {
-            //        ProductId = item.ProductId,
-            //        Quantity = item.Quantity,
-            //        UnitPrice = item.UnitPrice,
-            //        TotalPrice = item.Quantity * item.UnitPrice
-            //    });
-            //}
-
-            //if (errors.Any()) return BadRequest(new { Errors = errors });
-            // 🔄 Processar itens via método separado
+         
             (List<OrderItem> items, List<string> errors) = await ProcessOrderItems(dto.Items);
 
             if (errors.Any()) return BadRequest(new { Errors = errors });
@@ -225,8 +199,16 @@ namespace Fynanceo.API.Controllers
             if (dto.DeliveryInfo == null)
                 return BadRequest("Informações de entrega são obrigatórias.");
 
+            // Validar tipo de entrega
+            var validDeliveryTypes = new[] { "Delivery", "Retirada", "ConsumoLocal" };
+            if (!validDeliveryTypes.Contains(dto.DeliveryInfo.DeliveryType))
+            {
+                return BadRequest("Tipo de entrega inválido.");
+            }
+
             var orderNumber = GenerateOrderNumber();
             var userId = GetCurrentUserId();
+
             var order = new Order
             {
                 CustomerId = dto.CustomerId,
@@ -234,6 +216,7 @@ namespace Fynanceo.API.Controllers
                 PaymentMethod = dto.PaymentMethod,
                 Status = "Aberto",
                 IsDelivery = true,
+                DeliveryType = dto.DeliveryInfo.DeliveryType, // Garantir que sempre tem valor
                 CreatedAt = DateTime.UtcNow,
                 OrderNumber = orderNumber,
                 OrderItems = new List<OrderItem>()

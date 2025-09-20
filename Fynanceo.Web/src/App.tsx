@@ -56,7 +56,8 @@ function App() {
                                     <Customers />
                                 </ErrorBoundary>
                             } />
-                            <Route path="/categories" element={<Categories/>} />
+                            <Route path="/categories" element={<Categories />} />
+                          
                             <Route path="/deliveries" element={<div>Entregas (em breve)</div>} />
                             <Route path="/reports" element={<div>Relatórios (em breve)</div>} />
                             <Route path="/pdv" element={<PDV />} />

@@ -457,6 +457,13 @@
               "type": "string",
               "format": "date-time"
             }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -485,6 +492,52 @@
                   "items": {
                     "$ref": "#/components/schemas/DeliveryDTO"
                   }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Deliveries"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDeliveryOrderDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDeliveryOrderDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDeliveryOrderDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeliveryDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeliveryDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeliveryDTO"
                 }
               }
             }
@@ -492,21 +545,10 @@
         }
       }
     },
-    "/api/Deliveries/{id}": {
+    "/api/Deliveries/active": {
       "get": {
         "tags": [
           "Deliveries"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
         ],
         "responses": {
           "200": {
@@ -514,60 +556,29 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/DeliveryDTO"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DeliveryDTO"
+                  }
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DeliveryDTO"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DeliveryDTO"
+                  }
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DeliveryDTO"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DeliveryDTO"
+                  }
                 }
               }
             }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "Deliveries"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateDeliveryDTO"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateDeliveryDTO"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateDeliveryDTO"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
           }
         }
       }
@@ -603,6 +614,48 @@
             "application/*+json": {
               "schema": {
                 "$ref": "#/components/schemas/UpdateDeliveryStatusDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Deliveries/{id}/assign": {
+      "patch": {
+        "tags": [
+          "Deliveries"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignDeliveryPersonDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignDeliveryPersonDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignDeliveryPersonDTO"
               }
             }
           }
@@ -1362,6 +1415,16 @@
   },
   "components": {
     "schemas": {
+      "AssignDeliveryPersonDTO": {
+        "type": "object",
+        "properties": {
+          "deliveryPerson": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "Category": {
         "required": [
           "name"
@@ -1392,6 +1455,31 @@
         },
         "additionalProperties": false
       },
+      "CreateDeliveryOrderDTO": {
+        "type": "object",
+        "properties": {
+          "customerId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "paymentMethod": {
+            "type": "string",
+            "nullable": true
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateOrderItemDTO"
+            },
+            "nullable": true
+          },
+          "deliveryInfo": {
+            "$ref": "#/components/schemas/DeliveryInfoDTO"
+          }
+        },
+        "additionalProperties": false
+      },
       "CreateOrderDTO": {
         "type": "object",
         "properties": {
@@ -1401,6 +1489,10 @@
             "nullable": true
           },
           "paymentMethod": {
+            "type": "string",
+            "nullable": true
+          },
+          "deliveryType": {
             "type": "string",
             "nullable": true
           },
@@ -1441,6 +1533,10 @@
             "nullable": true
           },
           "paymentMethod": {
+            "type": "string",
+            "nullable": true
+          },
+          "deliveryType": {
             "type": "string",
             "nullable": true
           },
@@ -1596,6 +1692,18 @@
             "type": "string",
             "nullable": true
           },
+          "customerName": {
+            "type": "string",
+            "nullable": true
+          },
+          "deliveryFee": {
+            "type": "number",
+            "format": "double"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
           "estimatedDeliveryTime": {
             "type": "string",
             "format": "date-time",
@@ -1629,6 +1737,22 @@
             "type": "integer",
             "format": "int32"
           },
+          "orderNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "customerName": {
+            "type": "string",
+            "nullable": true
+          },
+          "customerAddress": {
+            "type": "string",
+            "nullable": true
+          },
+          "customerPhone": {
+            "type": "string",
+            "nullable": true
+          },
           "deliveryPerson": {
             "type": "string",
             "nullable": true
@@ -1641,9 +1765,9 @@
             "type": "string",
             "nullable": true
           },
-          "customerPhone": {
-            "type": "string",
-            "nullable": true
+          "deliveryFee": {
+            "type": "number",
+            "format": "double"
           },
           "estimatedDeliveryTime": {
             "type": "string",
@@ -1658,18 +1782,6 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
-          },
-          "orderNumber": {
-            "type": "string",
-            "nullable": true
-          },
-          "customerName": {
-            "type": "string",
-            "nullable": true
-          },
-          "customerAddress": {
-            "type": "string",
-            "nullable": true
           },
           "orderAmount": {
             "type": "number",
@@ -1703,6 +1815,22 @@
           "estimatedDeliveryTime": {
             "type": "string",
             "format": "date-time",
+            "nullable": true
+          },
+          "deliveryType": {
+            "type": "string",
+            "nullable": true
+          },
+          "customerName": {
+            "type": "string",
+            "nullable": true
+          },
+          "deliveryFee": {
+            "type": "number",
+            "format": "double"
+          },
+          "notes": {
+            "type": "string",
             "nullable": true
           }
         },
@@ -1787,6 +1915,10 @@
           "isDelivery": {
             "type": "boolean"
           },
+          "deliveryType": {
+            "type": "string",
+            "nullable": true
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -1794,10 +1926,6 @@
           "modifiedAt": {
             "type": "string",
             "format": "date-time",
-            "nullable": true
-          },
-          "modifiedReason": {
-            "type": "string",
             "nullable": true
           },
           "modifiedByUserId": {
@@ -1874,6 +2002,10 @@
           },
           "delivery": {
             "$ref": "#/components/schemas/DeliveryDTO"
+          },
+          "deliveryType": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -2083,29 +2215,6 @@
           },
           "deactivatedReason": {
             "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "UpdateDeliveryDTO": {
-        "type": "object",
-        "properties": {
-          "deliveryPerson": {
-            "type": "string",
-            "nullable": true
-          },
-          "deliveryAddress": {
-            "type": "string",
-            "nullable": true
-          },
-          "customerPhone": {
-            "type": "string",
-            "nullable": true
-          },
-          "estimatedDeliveryTime": {
-            "type": "string",
-            "format": "date-time",
             "nullable": true
           }
         },

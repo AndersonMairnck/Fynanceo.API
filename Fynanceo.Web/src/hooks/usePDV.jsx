@@ -1,243 +1,252 @@
 ﻿import { useState, useEffect, useCallback } from 'react';
-import api, { productsAPI, ordersAPI } from '../services/api';
+import { useAuth } from '../contexts/AuthContext'; // ← Importar o hook useAuth
 
 export const usePDV = () => {
-    const [products, setProducts] = useState([]);
+    const { token } = useAuth(); // ← Usar o hook useAuth
     const [cart, setCart] = useState([]);
     const [customers, setCustomers] = useState([]);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
-    const [paymentMethod, setPaymentMethod] = useState('dinheiro');
-    const [isDelivery, setIsDelivery] = useState(false);
+    const [paymentMethod, setPaymentMethod] = useState('Dinheiro');
+    const [deliveryType, setDeliveryType] = useState('ConsumoLocal');
     const [deliveryAddress, setDeliveryAddress] = useState('');
     const [deliveryNotes, setDeliveryNotes] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [openCustomerDialog, setOpenCustomerDialog] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [products, setProducts] = useState([]);
     const [filteredProducts, setFilteredProducts] = useState([]);
     const [activeTab, setActiveTab] = useState(0);
 
-    // Carrega produtos ativos e ordena (estoque zero no final)
+    // Opções de tipo de entrega
+    const deliveryTypeOptions = [
+        { value: 'ConsumoLocal', label: 'Consumo no Local', icon: '🏢' },
+        { value: 'Retirada', label: 'Retirada no Balcão', icon: '📦' },
+        { value: 'Delivery', label: 'Delivery/Entrega', icon: '🚚' }
+    ];
+
+    // Função para fazer requisições autenticadas
+    const fetchWithAuth = useCallback(async (url, options = {}) => {
+        const headers = {
+            'Content-Type': 'application/json',
+            ...options.headers,
+        };
+
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        const response = await fetch(url, {
+            ...options,
+            headers,
+        });
+
+        if (response.status === 401) {
+            console.error('Não autorizado - token pode ter expirado');
+            throw new Error('Não autorizado');
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return response;
+    }, [token]);
+
+    // Carregar produtos
     const loadProducts = useCallback(async () => {
         try {
-            const response = await productsAPI.getAll();
-            const activeProducts = response.data.filter(p => p.isActive);
-
-            // Ordena: produtos com estoque primeiro, depois os sem estoque
-            const sortedProducts = activeProducts.sort((a, b) => {
-                if (a.stockQuantity > 0 && b.stockQuantity <= 0) return -1;
-                if (a.stockQuantity <= 0 && b.stockQuantity > 0) return 1;
-                return 0;
-            });
-
-            setProducts(sortedProducts);
-            filterProducts(sortedProducts, searchTerm);
+            const response = await fetchWithAuth('/api/products');
+            const data = await response.json();
+            setProducts(data);
+            setFilteredProducts(data);
         } catch (error) {
             console.error('Erro ao carregar produtos:', error);
         }
-    }, [searchTerm]);
+    }, [fetchWithAuth]);
 
-    // Carrega clientes
+    // Carregar clientes
     const loadCustomers = useCallback(async () => {
         try {
-            const response = await api.get('/customers');
-            if (response.data && response.data.length > 0) {
-                setCustomers(response.data);
-            } else {
-                // fallback se não vier nada
-                setCustomers([
-                    { id: 1, name: 'Cliente Padrão', phone: '(11) 99999-9999' },
-                    { id: 2, name: 'Maria Silva', phone: '(11) 98888-8888' },
-                    { id: 3, name: 'João Santos', phone: '(11) 97777-7777' }
-                ]);
-            }
+            const response = await fetchWithAuth('/api/customers');
+            const data = await response.json();
+              console.log('Dados dos clientes recebidos:', data);
+            setCustomers(data);
         } catch (error) {
             console.error('Erro ao carregar clientes:', error);
-            // fallback se a API falhar
-            setCustomers([
-                { id: 1, name: 'Cliente Padrão', phone: '(11) 99999-9999' },
-                { id: 2, name: 'Maria Silva', phone: '(11) 98888-8888' },
-                { id: 3, name: 'João Santos', phone: '(11) 97777-7777' }
-            ]);
         }
-    }, []);
+    }, [fetchWithAuth]);
 
-    // Filtra e ordena os produtos
-    const filterProducts = useCallback((productsList, term) => {
-        const filtered = productsList.filter(product =>
-            product.name.toLowerCase().includes(term.toLowerCase()) ||
-            (product.description && product.description.toLowerCase().includes(term.toLowerCase()))
-        );
+    // Filtrar produtos
+    useEffect(() => {
+        if (searchTerm) {
+            const filtered = products.filter(product =>
+                product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                product.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                product.description?.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            setFilteredProducts(filtered);
+        } else {
+            setFilteredProducts(products);
+        }
+    }, [searchTerm, products]);
 
-        // Mantém a ordenação: com estoque primeiro
-        const sortedFiltered = filtered.sort((a, b) => {
-            if (a.stockQuantity > 0 && b.stockQuantity <= 0) return -1;
-            if (a.stockQuantity <= 0 && b.stockQuantity > 0) return 1;
-            return 0;
-        });
-
-        setFilteredProducts(sortedFiltered);
-    }, []);
-
+    // Adicionar ao carrinho
     const addToCart = (product) => {
-        // Verifica se o produto tem estoque disponível
-        if (product.stockQuantity <= 0) {
-            alert(`❌ ${product.name} está fora de estoque!`);
-            return;
-        }
-
-        const existingItem = cart.find(item => item.id === product.id);
+        const existingItem = cart.find(item => item.productId === product.id);
 
         if (existingItem) {
-            // Verifica se a quantidade atual + 1 excede o estoque
-            if (existingItem.quantity + 1 > product.stockQuantity) {
-                alert(`❌ Quantidade máxima de ${product.name} atingida (estoque: ${product.stockQuantity})`);
-                return;
-            }
-
-            setCart(cart.map(item =>
-                item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-            ));
+            updateQuantity(product.id, existingItem.quantity + 1);
         } else {
-            setCart([...cart, { ...product, quantity: 1, unitPrice: product.price }]);
-            // Muda para a aba do carrinho ao adicionar um produto
-            //setActiveTab(1);
+            setCart(prev => [...prev, {
+                productId: product.id,
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                quantity: 1,
+                totalPrice: product.price
+            }]);
         }
     };
 
-    const updateQuantity = (productId, newQuantity) => {
-        if (newQuantity <= 0) {
+    // Atualizar quantidade
+    const updateQuantity = (productId, quantity) => {
+        if (quantity <= 0) {
             removeFromCart(productId);
             return;
         }
 
-        // Encontra o produto original para verificar o estoque
-        const product = products.find(p => p.id === productId);
-        if (product && newQuantity > product.stockQuantity) {
-            alert(`❌ Quantidade máxima de ${product.name} é ${product.stockQuantity}`);
-            return;
-        }
-
-        setCart(cart.map(item =>
-            item.id === productId ? { ...item, quantity: newQuantity } : item
+        setCart(prev => prev.map(item =>
+            item.productId === productId
+                ? {
+                    ...item,
+                    quantity,
+                    totalPrice: item.price * quantity
+                }
+                : item
         ));
     };
 
+    // Remover do carrinho
     const removeFromCart = (productId) => {
-        setCart(cart.filter(item => item.id !== productId));
+        setCart(prev => prev.filter(item => item.productId !== productId));
     };
 
+    // Calcular total do carrinho
+    const getCartTotal = () => {
+        return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+    };
+
+    // Limpar carrinho
     const clearCart = () => {
         setCart([]);
+        setSelectedCustomer(null);
+        setPaymentMethod('Dinheiro');
+        setDeliveryType('ConsumoLocal');
+        setDeliveryAddress('');
+        setDeliveryNotes('');
     };
 
-    const getCartTotal = () => {
-        return cart.reduce((total, item) => total + (item.unitPrice * item.quantity), 0);
-    };
+    // Finalizar venda
+   const handleCheckout = async () => {
+    setLoading(true);
+    try {
+        const deliveryFee = deliveryType === 'Delivery' ? 5 : 0;
+        const subtotal = getCartTotal();
+        const totalAmount = subtotal + deliveryFee;
 
-    const handleCheckout = async () => {
-        if (cart.length === 0) {
-            alert('Adicione produtos ao carrinho primeiro!');
-            return;
-        }
+        let endpoint, requestBody;
 
-        // 🚨 Validação extra: impedir produtos com quantidade <= 0
-        const invalidItems = cart.filter(item => item.quantity <= 0);
-        if (invalidItems.length > 0) {
-            alert(`Os seguintes produtos estão com quantidade inválida: ${invalidItems.map(i => i.name).join(", ")}`);
-            return;
-        }
-
-        if (isDelivery && !deliveryAddress && !selectedCustomer?.address) {
-            alert('Informe o endereço de entrega!');
-            return;
-        }
-
-        setLoading(true);
-        try {
-            const baseOrderData = {
+        if (deliveryType === 'Delivery') {
+            // Formato para o endpoint /api/deliveries
+            endpoint = '/api/deliveries';
+            requestBody = {
                 customerId: selectedCustomer?.id || null,
                 paymentMethod: paymentMethod,
                 items: cart.map(item => ({
-                    productId: item.id,
+                    productId: item.productId || item.id,
                     quantity: item.quantity,
-                    unitPrice: item.unitPrice
+                    unitPrice: item.price
+                })),
+                deliveryInfo: {
+                   deliveryType: deliveryType,
+    deliveryAddress: deliveryAddress,
+    customerPhone: selectedCustomer?.phone || '',
+    customerName: selectedCustomer?.name || '',
+    deliveryFee: deliveryFee,
+    notes: deliveryNotes,
+   estimatedDeliveryTime: null,
+   deliveryPerson: "Entregador Padrão",
+                }
+            };
+        } else {
+            // Formato para o endpoint /api/orders/create
+            endpoint = '/api/orders/create';
+            requestBody = {
+                customerId: selectedCustomer?.id || null,
+                paymentMethod: paymentMethod,
+                deliveryType: deliveryType,
+                items: cart.map(item => ({
+                    productId: item.productId || item.id,
+                    quantity: item.quantity,
+                    unitPrice: item.price
                 }))
             };
-
-            let response;
-
-            if (isDelivery) {
-                const orderWithDelivery = {
-                    ...baseOrderData,
-                    deliveryInfo: {
-                        deliveryPerson: "Entregador Padrão",
-                        deliveryAddress: deliveryAddress || selectedCustomer?.address || "Endereço não informado",
-                        customerPhone: selectedCustomer?.phone || "",
-                        estimatedDeliveryTime: new Date(Date.now() + 45 * 60000),
-                        notes: deliveryNotes
-                    }
-                };
-                response = await ordersAPI.createWithDelivery(orderWithDelivery);
-            } else {
-                response = await ordersAPI.create(baseOrderData);
-            }
-
-            if (response.status >= 200 && response.status < 300) {
-                alert('✅ Venda realizada com sucesso!');
-                setCart([]);
-                setSelectedCustomer(null);
-                setIsDelivery(false);
-                setDeliveryAddress('');
-                setDeliveryNotes('');
-
-                // ✅ ATUALIZA A LISTA DE PRODUTOS APÓS A VENDA
-                await loadProducts();
-            }
-        } catch (error) {
-            console.error('Erro ao finalizar venda:', error);
-            if (error.response) {
-                alert(`Erro ${error.response.status}: ${error.response.data?.message || error.response.statusText}`);
-            } else if (error.request) {
-                alert('Erro: servidor não respondeu. Verifique se a API está rodando.');
-            } else {
-                alert('Erro ao configurar requisição: ' + error.message);
-            }
-        } finally {
-            setLoading(false);
         }
-    };
 
-    // Atualiza o filtro quando searchTerm muda
-    useEffect(() => {
-        filterProducts(products, searchTerm);
-    }, [searchTerm, products, filterProducts]);
+        console.log('📤 Enviando para', endpoint, ':', JSON.stringify(requestBody, null, 2));
 
-    // Efeito para carregar dados iniciais
+        const response = await fetchWithAuth(endpoint, {
+            method: 'POST',
+            body: JSON.stringify(requestBody),
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            alert('Pedido criado com sucesso!');
+            clearCart();
+            return result;
+        } else {
+            const errorText = await response.text();
+            console.error('Erro na resposta:', errorText);
+            throw new Error(errorText || 'Falha ao criar pedido');
+        }
+    } catch (error) {
+        console.error('❌ Erro detalhado:', error);
+        alert(`Erro ao finalizar pedido: ${error.message}`);
+        throw error;
+    } finally {
+        setLoading(false);
+    }
+};
+    // Carregar dados iniciais
     useEffect(() => {
-        loadProducts();
-        loadCustomers();
-    }, [loadProducts, loadCustomers]);
+        if (token) {
+            loadProducts();
+            loadCustomers();
+        }
+    }, [loadProducts, loadCustomers, token]);
 
     return {
         // State
-        products,
         cart,
         customers,
         selectedCustomer,
         paymentMethod,
-        isDelivery,
+        deliveryType,
+        deliveryTypeOptions,
         deliveryAddress,
         deliveryNotes,
         searchTerm,
         openCustomerDialog,
         loading,
+        products,
         filteredProducts,
         activeTab,
 
         // Actions
         setSelectedCustomer,
         setPaymentMethod,
-        setIsDelivery,
+        setDeliveryType,
         setDeliveryAddress,
         setDeliveryNotes,
         setSearchTerm,
@@ -246,9 +255,9 @@ export const usePDV = () => {
         addToCart,
         updateQuantity,
         removeFromCart,
-        clearCart, // Função adicionada
         getCartTotal,
         handleCheckout,
-        loadProducts
+        loadProducts,
+        clearCart
     };
 };
