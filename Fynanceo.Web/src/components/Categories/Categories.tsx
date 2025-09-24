@@ -1,4 +1,4 @@
-﻿// src/components/Customers/Customers.jsx
+﻿    // src/components/Categories/Categories.jsx
 import React, { useState, useEffect } from 'react';
 import {
     Container,
@@ -18,88 +18,109 @@ import {
     CircularProgress,
     Tabs,
     Tab,
-    TextField // ADICIONE ESTA IMPORTACAO
+    TextField
 } from '@mui/material';
-import { Edit, Delete, Add, People as CustomersIcon, PointOfSale as PDVIcon } from '@mui/icons-material';
-import { useCustomers } from '../../hooks/useCustomers';
-import CustomerForm from './CustomerForm';
+import { Edit, Delete, Add, Category as CategoryIcon, PointOfSale as PDVIcon } from '@mui/icons-material';
+import { useCategories } from '../../hooks/useCategories';
+import CategoryForm from './CategoryForm';
 import ConfirmationDialog from '../common/ConfirmationDialog';
 import Layout from '../Layout/Layout';
 
-const Customers = () => {
-    const { customers, loading, error, createCustomer, updateCustomer, deleteCustomer } = useCustomers();
+import { Category } from '../../types/Category';
+
+
+
+// 2. Tipar explicitamente os retornos do hook
+const Categories = () => {
+    const {
+        categories,
+        loading,
+        error,
+        createCategory,
+        updateCategory,
+        deleteCategory
+    }: {
+        categories: Category[];
+        loading: boolean;
+        error: string | null;
+        createCategory: (data: Omit<Category, 'id'>) => Promise<void>;
+        updateCategory: (id: string, data: Omit<Category, 'id'>) => Promise<void>;
+        deleteCategory: (id: string) => Promise<void>;
+    } = useCategories();
+
     const [formOpen, setFormOpen] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-    const [selectedCustomer, setSelectedCustomer] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
     const [actionLoading, setActionLoading] = useState(false);
     const [actionError, setActionError] = useState('');
     const [activeTab, setActiveTab] = useState(0);
-    const [searchTerm, setSearchTerm] = useState(''); // ESTADO PARA BUSCA
+    const [searchTerm, setSearchTerm] = useState('');
 
-    // Função para filtrar clientes
-    const filteredCustomers = customers.filter(customer =>
-        customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.phone?.includes(searchTerm) ||
-        customer.cidade?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.estado?.toLowerCase().includes(searchTerm.toLowerCase())
+    // 3. Filtrar categorias
+    const filteredCategories = categories.filter((category: Category) =>
+        category.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        category.description?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const handleCreate = () => {
-        setSelectedCustomer(null);
+        setSelectedCategory(null);
         setFormOpen(true);
         setActionError('');
     };
 
-    const handleEdit = (customer) => {
-        setSelectedCustomer(customer);
+    // 4. Tipar explicitamente os parâmetros
+    const handleEdit = (category: Category) => {
+        setSelectedCategory(category);
         setFormOpen(true);
         setActionError('');
     };
 
-    const handleDelete = (customer) => {
-        setSelectedCustomer(customer);
+    const handleDelete = (category: Category) => {
+        setSelectedCategory(category);
         setDeleteDialogOpen(true);
         setActionError('');
     };
 
-    // useEffect para atalhos de teclado
+    // 5. Tipar evento de teclado
     useEffect(() => {
-        const handleKeyDown = (e) => {
-            // Novo cliente quando pressionar F2
+        const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'F2') {
                 e.preventDefault();
                 handleCreate();
             }
 
-            // Foca na busca quando pressionar Ctrl+F
             if (e.ctrlKey && e.key === 'f') {
                 e.preventDefault();
-                const searchInput = document.querySelector('input[placeholder="Buscar clientes..."]');
-                if (searchInput) {
+                const searchInput = document.querySelector('input[placeholder="Buscar categorias..."]');
+                if (searchInput instanceof HTMLInputElement) {
                     searchInput.focus();
-                    searchInput.select(); // Seleciona o texto existente
+                    searchInput.select();
                 }
             }
         };
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [handleCreate]);
+    }, []);
 
-    const handleSubmit = async (customerData) => {
+    // 6. Tipar dados do formulário
+    const handleSubmit = async (categoryData: Omit<Category, 'id'>) => {
         setActionLoading(true);
         setActionError('');
 
         try {
-            if (selectedCustomer) {
-                await updateCustomer(selectedCustomer.id, customerData);
+            if (selectedCategory) {
+                await updateCategory(selectedCategory.id, categoryData);
             } else {
-                await createCustomer(customerData);
+                await createCategory(categoryData);
             }
             setFormOpen(false);
         } catch (err) {
-            setActionError(err.message);
+            if (err instanceof Error) {
+                setActionError(err.message);
+            } else {
+                setActionError('Erro desconhecido');
+            }
             throw err;
         } finally {
             setActionLoading(false);
@@ -107,14 +128,19 @@ const Customers = () => {
     };
 
     const handleConfirmDelete = async () => {
+        if (!selectedCategory) return;
         setActionLoading(true);
         setActionError('');
 
         try {
-            await deleteCustomer(selectedCustomer.id);
+            await deleteCategory(selectedCategory.id);
             setDeleteDialogOpen(false);
         } catch (err) {
-            setActionError(err.message);
+            if (err instanceof Error) {
+                setActionError(err.message);
+            } else {
+                setActionError('Erro desconhecido');
+            }
         } finally {
             setActionLoading(false);
         }
@@ -130,7 +156,7 @@ const Customers = () => {
         setActionError('');
     };
 
-    if (loading && customers.length === 0) {
+    if (loading && categories.length === 0) {
         return (
             <Layout>
                 <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -148,11 +174,11 @@ const Customers = () => {
                 <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
                     <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)}>
                         <Tab
-                            icon={<CustomersIcon />}
+                            icon={<CategoryIcon />}
                             iconPosition="start"
-                            label="Clientes"
+                            label="Categorias"
                         />
-                        <Tab
+                        {/* <Tab
                             icon={<PDVIcon />}
                             iconPosition="start"
                             label="PDV"
@@ -162,14 +188,13 @@ const Customers = () => {
                                 e.preventDefault();
                                 window.location.href = '/pdv';
                             }}
-                        />
+                        /> */}
                     </Tabs>
                 </Box>
 
-                {/* BARRA DE BUSCA - ADICIONE ESTE BLOCO */}
                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} gap={2}>
                     <TextField
-                        placeholder="Buscar clientes..."
+                        placeholder="Buscar categorias..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         size="small"
@@ -183,7 +208,7 @@ const Customers = () => {
                         startIcon={<Add />}
                         onClick={handleCreate}
                     >
-                        Novo Cliente (F2)
+                        Nova Categoria (F2)
                     </Button>
                 </Box>
 
@@ -193,11 +218,10 @@ const Customers = () => {
                     </Alert>
                 )}
 
-                {/* CONTADOR DE RESULTADOS - ADICIONE ESTE BLOCO */}
                 {searchTerm && (
                     <Box mb={2}>
                         <Typography variant="body2" color="textSecondary">
-                            {filteredCustomers.length} cliente(s) encontrado(s) para "{searchTerm}"
+                            {filteredCategories.length} categoria(s) encontrada(s) para "{searchTerm}"
                         </Typography>
                     </Box>
                 )}
@@ -208,44 +232,45 @@ const Customers = () => {
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Nome</TableCell>
-                                    <TableCell>Email</TableCell>
-                                    <TableCell>Telefone</TableCell>
-                                    <TableCell>Cidade</TableCell>
-                                    <TableCell>Estado</TableCell>
+                                    <TableCell>Descrição</TableCell>
                                     <TableCell>Status</TableCell>
                                     <TableCell align="center">Ações</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {/* USE filteredCustomers EM VEZ DE customers */}
-                                {filteredCustomers.map((customer) => (
-                                    <TableRow key={customer.id}>
-                                        <TableCell>{customer.name}</TableCell>
-                                        <TableCell>{customer.email || '-'}</TableCell>
-                                        <TableCell>{customer.phone || '-'}</TableCell>
-                                        <TableCell>{customer.cidade || '-'}</TableCell>
-                                        <TableCell>{customer.estado || '-'}</TableCell>
+                                {filteredCategories.map((category: Category) => (
+                                    <TableRow key={category.id}>
+                                        <TableCell>
+                                            <Typography fontWeight="medium">
+                                                {category.name}
+                                            </Typography>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Typography variant="body2" color="textSecondary">
+                                                {category.description || '-'}
+                                            </Typography>
+                                        </TableCell>
                                         <TableCell>
                                             <Chip
-                                                label={customer.isActive ? 'Ativo' : 'Inativo'}
-                                                color={customer.isActive ? 'success' : 'error'}
+                                                label={category.isActive ? 'Ativa' : 'Inativa'}
+                                                color={category.isActive ? 'success' : 'error'}
                                                 size="small"
                                             />
                                         </TableCell>
                                         <TableCell align="center">
                                             <IconButton
-                                                onClick={() => handleEdit(customer)}
+                                                onClick={() => handleEdit(category)}
                                                 color="primary"
                                                 size="small"
-                                                title="Editar cliente"
+                                                title="Editar categoria"
                                             >
                                                 <Edit />
                                             </IconButton>
                                             <IconButton
-                                                onClick={() => handleDelete(customer)}
+                                                onClick={() => handleDelete(category)}
                                                 color="error"
                                                 size="small"
-                                                title="Excluir cliente"
+                                                title="Excluir categoria"
                                             >
                                                 <Delete />
                                             </IconButton>
@@ -257,11 +282,10 @@ const Customers = () => {
                     </TableContainer>
                 </Paper>
 
-                {/* MENSAGEM DE NENHUM RESULTADO - ATUALIZE ESTE BLOCO */}
-                {filteredCustomers.length === 0 && !loading && (
+                {filteredCategories.length === 0 && !loading && (
                     <Box textAlign="center" mt={4}>
                         <Typography variant="h6" color="textSecondary">
-                            {searchTerm ? 'Nenhum cliente encontrado' : 'Nenhum cliente cadastrado'}
+                            {searchTerm ? 'Nenhuma categoria encontrada' : 'Nenhuma categoria cadastrada'}
                         </Typography>
                         {searchTerm && (
                             <Button
@@ -278,15 +302,15 @@ const Customers = () => {
                             onClick={handleCreate}
                             sx={{ mt: 1 }}
                         >
-                            Cadastrar Novo Cliente
+                            Cadastrar Nova Categoria
                         </Button>
                     </Box>
                 )}
 
-                <CustomerForm
+                <CategoryForm
                     open={formOpen}
                     onClose={handleCloseForm}
-                    customer={selectedCustomer}
+                    category={selectedCategory}
                     onSubmit={handleSubmit}
                     loading={actionLoading}
                     error={actionError}
@@ -297,7 +321,7 @@ const Customers = () => {
                     onClose={handleCloseDeleteDialog}
                     onConfirm={handleConfirmDelete}
                     title="Confirmar Exclusão"
-                    message={`Tem certeza que deseja excluir o cliente "${selectedCustomer?.name}"?`}
+                    message={`Tem certeza que deseja excluir a categoria "${selectedCategory?.name ?? ''}"?`}
                     loading={actionLoading}
                     error={actionError}
                 />
@@ -306,4 +330,4 @@ const Customers = () => {
     );
 };
 
-export default Customers;
+export default Categories;

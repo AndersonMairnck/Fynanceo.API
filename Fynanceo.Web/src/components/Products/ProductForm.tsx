@@ -55,7 +55,7 @@ const ProductForm = () => {
         }
     };
 
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
@@ -63,7 +63,7 @@ const ProductForm = () => {
         }));
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async  (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError('');
@@ -93,8 +93,14 @@ const ProductForm = () => {
                 categoryId: ''
             });
 
-        } catch (error) {
-            setError('Erro ao criar produto: ' + (error.response?.data?.message || error.message));
+       } catch (err) {
+  if (err instanceof Error) {
+    setError(err.message);
+  } else {
+    setError('An unknown error occurred');
+  }
+
+            
         } finally {
             setLoading(false);
         }

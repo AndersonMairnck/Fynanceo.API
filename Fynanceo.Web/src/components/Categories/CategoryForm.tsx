@@ -10,8 +10,19 @@ import {
     Grid,
     Alert
 } from '@mui/material';
+import { Category } from "../../types/Category";
 
-const CategoryForm = ({ open, onClose, category, onSubmit, loading, error }) => {
+
+
+interface CategoryFormProps {
+  open: boolean;
+  onClose: () => void;
+  category?: Category;
+  onSubmit: (data: Omit<Category, "id">) => Promise<void>;
+  loading: boolean;
+  error: string | null;
+}
+const CategoryForm: React.FC<CategoryFormProps> = ({ open, onClose, category, onSubmit, loading, error }) =>  {
     const [formData, setFormData] = useState({
         name: '',
         description: ''
@@ -33,7 +44,7 @@ const CategoryForm = ({ open, onClose, category, onSubmit, loading, error }) => 
         setFormError('');
     }, [category, open]);
 
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
@@ -61,12 +72,14 @@ const CategoryForm = ({ open, onClose, category, onSubmit, loading, error }) => 
         return true;
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit =async   (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!validateForm()) return;
 
         try {
+
+            
             await onSubmit(formData);
             onClose();
         } catch (err) {

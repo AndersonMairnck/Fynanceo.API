@@ -1641,6 +1641,18 @@
             "type": "string",
             "format": "date-time"
           },
+          "tipoPessoa": {
+            "type": "string",
+            "nullable": true
+          },
+          "cpfCnpj": {
+            "type": "string",
+            "nullable": true
+          },
+          "dataNascimento": {
+            "type": "string",
+            "format": "date-time"
+          },
           "updatedAt": {
             "type": "string",
             "format": "date-time",

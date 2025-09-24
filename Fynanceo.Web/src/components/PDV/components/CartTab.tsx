@@ -48,7 +48,7 @@ import {
 } from '@mui/icons-material';
 
 const CartTab = ({
-    cart,
+    cart ,
     selectedCustomer,
     setSelectedCustomer,
     updateQuantity,

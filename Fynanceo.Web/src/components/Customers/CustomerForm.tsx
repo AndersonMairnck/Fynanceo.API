@@ -66,7 +66,7 @@ const CustomerForm = ({ open, onClose, customer, onSubmit, loading, error }) => 
         setFormError('');
     }, [customer, open]);
 
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>{
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
@@ -131,7 +131,7 @@ const CustomerForm = ({ open, onClose, customer, onSubmit, loading, error }) => 
         return true;
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit =  (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!validateForm()) return;

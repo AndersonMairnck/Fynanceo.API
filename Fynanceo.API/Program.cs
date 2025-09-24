@@ -1,17 +1,20 @@
 ﻿using FluentValidation;
 using FluentValidation.AspNetCore;
 using Fynanceo.API.Data;
+//using Fynanceo.API.Middlewares;
 using Fynanceo.API.Models.DTOs;
 using Fynanceo.API.Services;
 using Fynanceo.API.Services.Implementations;
 using Fynanceo.API.Services.Interfaces;
 using Fynanceo.API.Validators;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using static Fynanceo.API.Validators.CreateOrderDTOValidator;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +24,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Register services
 builder.Services.AddScoped<IAuthService, AuthService>();
-
+builder.Services.AddScoped<CategoryService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -92,6 +95,24 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreateOrderDTOValidator>();
 builder.Services.AddScoped<IValidator<CreateOrderDTO>, CreateOrderDTOValidator>();
 builder.Services.AddScoped<IValidator<CreateOrderWithDeliveryDTO>, CreateOrderWithDeliveryDTOValidator>();
 
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var errors = context.ModelState
+            .SelectMany(x => x.Value.Errors.Select(err => err.ErrorMessage))
+            .ToArray();
+
+        var logger = context.HttpContext.RequestServices
+            .GetRequiredService<ILogger<Program>>();
+        logger.LogWarning("ModelState inválido: {Errors}", string.Join(", ", errors));
+
+        return new BadRequestObjectResult(new { message = "Dados inválidos", errors });
+    };
+});
+
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -108,6 +129,8 @@ app.UseCors("AllowReactApp");
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<RequestLoggingMiddleware>();
+
 
 app.MapControllers();
 

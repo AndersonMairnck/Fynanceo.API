@@ -9,6 +9,16 @@ import {
     Alert
 } from '@mui/material';
 
+interface ConfirmationDialogProps {
+    open: boolean;
+    onClose: () => void;
+    onConfirm: () => void;
+    title: string;
+    message: string;
+    loading: boolean;
+    error: string | null;
+}
+
 const ConfirmationDialog = ({
     open,
     onClose,
@@ -17,7 +27,7 @@ const ConfirmationDialog = ({
     message,
     loading,
     error
-}) => {
+}: ConfirmationDialogProps) => {
     return (
         <Dialog open={open} onClose={onClose}>
             <DialogTitle>{title}</DialogTitle>

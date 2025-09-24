@@ -87,11 +87,20 @@ namespace Fynanceo.API.Migrations
                         .HasColumnType("text")
                         .HasColumnName("complemento");
 
+                    b.Property<string>("CpfCnpj")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("cpfcnpj");
+
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("createdat")
                         .HasDefaultValueSql("NOW()");
+
+                    b.Property<DateTime>("DataNascimento")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("datanascimento");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -124,6 +133,11 @@ namespace Fynanceo.API.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("rua");
+
+                    b.Property<string>("TipoPessoa")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("tipopessoa");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")

@@ -8,7 +8,7 @@ namespace Fynanceo.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+  //  [Authorize]
     public class CustomersController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -49,11 +49,7 @@ namespace Fynanceo.API.Controllers
         [HttpPost]
         public async Task<ActionResult<Customer>> PostCustomer(Customer customer)
         {
-            //customer.CreatedAt = DateTime.UtcNow;
-            //_context.Customers.Add(customer);
-            //await _context.SaveChangesAsync();
-
-            //return CreatedAtAction("GetCustomer", new { id = customer.Id }, customer);
+           
 
             if (await _context.Customers.AnyAsync(c => c.Email == customer.Email && c.IsActive))
             {
@@ -92,7 +88,8 @@ namespace Fynanceo.API.Controllers
             existingCustomer.Cidade = customer.Cidade;
             existingCustomer.Complemento = customer.Complemento;
             existingCustomer.Rua = customer.Rua;
-            
+            existingCustomer.TipoPessoa = customer.TipoPessoa;
+            existingCustomer.CpfCnpj = customer.CpfCnpj;
 
             _context.Entry(existingCustomer).State = EntityState.Modified;
             await _context.SaveChangesAsync();

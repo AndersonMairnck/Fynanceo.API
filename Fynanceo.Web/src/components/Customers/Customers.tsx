@@ -1,4 +1,4 @@
-﻿// src/components/Categories/Categories.jsx
+﻿// src/components/Customers/Customers.jsx
 import React, { useState, useEffect } from 'react';
 import {
     Container,
@@ -18,44 +18,47 @@ import {
     CircularProgress,
     Tabs,
     Tab,
-    TextField
+    TextField // ADICIONE ESTA IMPORTACAO
 } from '@mui/material';
-import { Edit, Delete, Add, Category as CategoryIcon, PointOfSale as PDVIcon } from '@mui/icons-material';
-import { useCategories } from '../../hooks/useCategories';
-import CategoryForm from './CategoryForm';
+import { Edit, Delete, Add, People as CustomersIcon, PointOfSale as PDVIcon } from '@mui/icons-material';
+import { useCustomers } from '../../hooks/useCustomers';
+import CustomerForm from './CustomerForm';
 import ConfirmationDialog from '../common/ConfirmationDialog';
 import Layout from '../Layout/Layout';
 
-const Categories = () => {
-    const { categories, loading, error, createCategory, updateCategory, deleteCategory } = useCategories();
+const Customers = () => {
+    const { customers, loading, error, createCustomer, updateCustomer, deleteCustomer } = useCustomers();
     const [formOpen, setFormOpen] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [actionLoading, setActionLoading] = useState(false);
     const [actionError, setActionError] = useState('');
     const [activeTab, setActiveTab] = useState(0);
-    const [searchTerm, setSearchTerm] = useState('');
-
-    // Filtrar categorias
-    const filteredCategories = categories.filter(category =>
-        category.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        category.description?.toLowerCase().includes(searchTerm.toLowerCase())
+    const [searchTerm, setSearchTerm] = useState(''); // ESTADO PARA BUSCA
+const [customers, setCustomers] = useState<Customer[]>([]);
+    // Função para filtrar clientes
+    const filteredCustomers = customers.filter(customer =>
+        customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customer.phone?.includes(searchTerm) ||
+        customer.cidade?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customer.estado?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const handleCreate = () => {
-        setSelectedCategory(null);
+        setSelectedCustomer(null);
         setFormOpen(true);
         setActionError('');
     };
 
-    const handleEdit = (category) => {
-        setSelectedCategory(category);
+    const handleEdit = (customer) => {
+        setSelectedCustomer(customer);
         setFormOpen(true);
         setActionError('');
     };
 
-    const handleDelete = (category) => {
-        setSelectedCategory(category);
+    const handleDelete = (customer) => {
+        setSelectedCustomer(customer);
         setDeleteDialogOpen(true);
         setActionError('');
     };
@@ -63,17 +66,19 @@ const Categories = () => {
     // useEffect para atalhos de teclado
     useEffect(() => {
         const handleKeyDown = (e) => {
+            // Novo cliente quando pressionar F2
             if (e.key === 'F2') {
                 e.preventDefault();
                 handleCreate();
             }
 
+            // Foca na busca quando pressionar Ctrl+F
             if (e.ctrlKey && e.key === 'f') {
                 e.preventDefault();
-                const searchInput = document.querySelector('input[placeholder="Buscar categorias..."]');
+                const searchInput = document.querySelector('input[placeholder="Buscar clientes..."]');
                 if (searchInput) {
                     searchInput.focus();
-                    searchInput.select();
+                    searchInput.select(); // Seleciona o texto existente
                 }
             }
         };
@@ -82,15 +87,15 @@ const Categories = () => {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [handleCreate]);
 
-    const handleSubmit = async (categoryData) => {
+    const handleSubmit = async (customerData) => {
         setActionLoading(true);
         setActionError('');
 
         try {
-            if (selectedCategory) {
-                await updateCategory(selectedCategory.id, categoryData);
+            if (selectedCustomer) {
+                await updateCustomer(selectedCustomer.id, customerData);
             } else {
-                await createCategory(categoryData);
+                await createCustomer(customerData);
             }
             setFormOpen(false);
         } catch (err) {
@@ -106,7 +111,7 @@ const Categories = () => {
         setActionError('');
 
         try {
-            await deleteCategory(selectedCategory.id);
+            await deleteCustomer(selectedCustomer.id);
             setDeleteDialogOpen(false);
         } catch (err) {
             setActionError(err.message);
@@ -125,7 +130,7 @@ const Categories = () => {
         setActionError('');
     };
 
-    if (loading && categories.length === 0) {
+    if (loading && customers.length === 0) {
         return (
             <Layout>
                 <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -136,6 +141,9 @@ const Categories = () => {
             </Layout>
         );
     }
+    interface Customer {
+  id: number;
+  name: string; }
 
     return (
         <Layout>
@@ -143,11 +151,11 @@ const Categories = () => {
                 <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
                     <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)}>
                         <Tab
-                            icon={<CategoryIcon />}
+                            icon={<CustomersIcon />}
                             iconPosition="start"
-                            label="Categorias"
+                            label="Clientes"
                         />
-                        {/* <Tab
+                        <Tab
                             icon={<PDVIcon />}
                             iconPosition="start"
                             label="PDV"
@@ -157,13 +165,14 @@ const Categories = () => {
                                 e.preventDefault();
                                 window.location.href = '/pdv';
                             }}
-                        /> */}
+                        />
                     </Tabs>
                 </Box>
 
+                {/* BARRA DE BUSCA - ADICIONE ESTE BLOCO */}
                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} gap={2}>
                     <TextField
-                        placeholder="Buscar categorias..."
+                        placeholder="Buscar clientes..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         size="small"
@@ -177,7 +186,7 @@ const Categories = () => {
                         startIcon={<Add />}
                         onClick={handleCreate}
                     >
-                        Nova Categoria (F2)
+                        Novo Cliente (F2)
                     </Button>
                 </Box>
 
@@ -187,10 +196,11 @@ const Categories = () => {
                     </Alert>
                 )}
 
+                {/* CONTADOR DE RESULTADOS - ADICIONE ESTE BLOCO */}
                 {searchTerm && (
                     <Box mb={2}>
                         <Typography variant="body2" color="textSecondary">
-                            {filteredCategories.length} categoria(s) encontrada(s) para "{searchTerm}"
+                            {filteredCustomers.length} cliente(s) encontrado(s) para "{searchTerm}"
                         </Typography>
                     </Box>
                 )}
@@ -201,45 +211,44 @@ const Categories = () => {
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Nome</TableCell>
-                                    <TableCell>Descrição</TableCell>
+                                    <TableCell>Email</TableCell>
+                                    <TableCell>Telefone</TableCell>
+                                    <TableCell>Cidade</TableCell>
+                                    <TableCell>Estado</TableCell>
                                     <TableCell>Status</TableCell>
                                     <TableCell align="center">Ações</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {filteredCategories.map((category) => (
-                                    <TableRow key={category.id}>
-                                        <TableCell>
-                                            <Typography fontWeight="medium">
-                                                {category.name}
-                                            </Typography>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Typography variant="body2" color="textSecondary">
-                                                {category.description || '-'}
-                                            </Typography>
-                                        </TableCell>
+                                {/* USE filteredCustomers EM VEZ DE customers */}
+                                {filteredCustomers.map((customer) => (
+                                    <TableRow key={customer.id}>
+                                        <TableCell>{customer.name}</TableCell>
+                                        <TableCell>{customer.email || '-'}</TableCell>
+                                        <TableCell>{customer.phone || '-'}</TableCell>
+                                        <TableCell>{customer.cidade || '-'}</TableCell>
+                                        <TableCell>{customer.estado || '-'}</TableCell>
                                         <TableCell>
                                             <Chip
-                                                label={category.isActive ? 'Ativa' : 'Inativa'}
-                                                color={category.isActive ? 'success' : 'error'}
+                                                label={customer.isActive ? 'Ativo' : 'Inativo'}
+                                                color={customer.isActive ? 'success' : 'error'}
                                                 size="small"
                                             />
                                         </TableCell>
                                         <TableCell align="center">
                                             <IconButton
-                                                onClick={() => handleEdit(category)}
+                                                onClick={() => handleEdit(customer)}
                                                 color="primary"
                                                 size="small"
-                                                title="Editar categoria"
+                                                title="Editar cliente"
                                             >
                                                 <Edit />
                                             </IconButton>
                                             <IconButton
-                                                onClick={() => handleDelete(category)}
+                                                onClick={() => handleDelete(customer)}
                                                 color="error"
                                                 size="small"
-                                                title="Excluir categoria"
+                                                title="Excluir cliente"
                                             >
                                                 <Delete />
                                             </IconButton>
@@ -251,10 +260,11 @@ const Categories = () => {
                     </TableContainer>
                 </Paper>
 
-                {filteredCategories.length === 0 && !loading && (
+                {/* MENSAGEM DE NENHUM RESULTADO - ATUALIZE ESTE BLOCO */}
+                {filteredCustomers.length === 0 && !loading && (
                     <Box textAlign="center" mt={4}>
                         <Typography variant="h6" color="textSecondary">
-                            {searchTerm ? 'Nenhuma categoria encontrada' : 'Nenhuma categoria cadastrada'}
+                            {searchTerm ? 'Nenhum cliente encontrado' : 'Nenhum cliente cadastrado'}
                         </Typography>
                         {searchTerm && (
                             <Button
@@ -271,15 +281,15 @@ const Categories = () => {
                             onClick={handleCreate}
                             sx={{ mt: 1 }}
                         >
-                            Cadastrar Nova Categoria
+                            Cadastrar Novo Cliente
                         </Button>
                     </Box>
                 )}
 
-                <CategoryForm
+                <CustomerForm
                     open={formOpen}
                     onClose={handleCloseForm}
-                    category={selectedCategory}
+                    customer={selectedCustomer}
                     onSubmit={handleSubmit}
                     loading={actionLoading}
                     error={actionError}
@@ -290,7 +300,7 @@ const Categories = () => {
                     onClose={handleCloseDeleteDialog}
                     onConfirm={handleConfirmDelete}
                     title="Confirmar Exclusão"
-                    message={`Tem certeza que deseja excluir a categoria "${selectedCategory?.name}"?`}
+                    message={`Tem certeza que deseja excluir o cliente "${selectedCustomer?.name}"?`}
                     loading={actionLoading}
                     error={actionError}
                 />
@@ -299,4 +309,4 @@ const Categories = () => {
     );
 };
 
-export default Categories;
+export default Customers;

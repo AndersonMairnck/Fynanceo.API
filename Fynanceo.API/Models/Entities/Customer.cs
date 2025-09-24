@@ -27,9 +27,10 @@ namespace Fynanceo.API.Models.Entities
         public string? Complemento { get; set; }
         public string Rua { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public string TipoPessoa { get; set; } // Fisica ou Juridica
+        public string CpfCnpj { get; set; } // CPF ou CNPJ
 
-     
-
+        public DateTime DataNascimento { get; set; }
         // Adicione esta linha
         public DateTime? UpdatedAt { get; set; }
 

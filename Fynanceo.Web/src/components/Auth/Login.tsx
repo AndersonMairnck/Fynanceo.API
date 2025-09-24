@@ -18,7 +18,7 @@ const Login = () => {
     const { login, loading, error, clearError } = useAuth();
     const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async  (e: React.FormEvent) => {
         e.preventDefault();
         setLocalError('');
         clearError();
@@ -32,9 +32,16 @@ const Login = () => {
         try {
             await login(email, password);
             navigate('/dashboard'); // ou para a página inicial
-        } catch (error) {
-            console.error('Erro no login:', error);
-            setLocalError(error.message);
+        }catch (error) {
+    console.error('Erro no login:', error);
+
+    // Verifica se o erro é uma instância de 'Error'
+    if (error instanceof Error) {
+        setLocalError(error.message);
+    } else {
+        // Se não for um 'Error', usa uma mensagem genérica ou o tipo 'unknown'
+        setLocalError('Ocorreu um erro desconhecido.');
+    
         }
     };
 
