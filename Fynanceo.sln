@@ -5,8 +5,6 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fynanceo.API", "Fynanceo.API\Fynanceo.API.csproj", "{8EA0E96C-3A76-4AC5-B6AA-07D70FAF8F5C}"
 EndProject
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "Fynanceo.Web", "Fynanceo.Web\Fynanceo.Web.esproj", "{9BE8A7C6-331E-8413-4F56-B8BD3EC67E7F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,24 +27,6 @@ Global
 		{8EA0E96C-3A76-4AC5-B6AA-07D70FAF8F5C}.Release|x64.Build.0 = Release|Any CPU
 		{8EA0E96C-3A76-4AC5-B6AA-07D70FAF8F5C}.Release|x86.ActiveCfg = Release|Any CPU
 		{8EA0E96C-3A76-4AC5-B6AA-07D70FAF8F5C}.Release|x86.Build.0 = Release|Any CPU
-		{9BE8A7C6-331E-8413-4F56-B8BD3EC67E7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9BE8A7C6-331E-8413-4F56-B8BD3EC67E7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9BE8A7C6-331E-8413-4F56-B8BD3EC67E7F}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{9BE8A7C6-331E-8413-4F56-B8BD3EC67E7F}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{9BE8A7C6-331E-8413-4F56-B8BD3EC67E7F}.Debug|x64.Build.0 = Debug|Any CPU
-		{9BE8A7C6-331E-8413-4F56-B8BD3EC67E7F}.Debug|x64.Deploy.0 = Debug|Any CPU
-		{9BE8A7C6-331E-8413-4F56-B8BD3EC67E7F}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{9BE8A7C6-331E-8413-4F56-B8BD3EC67E7F}.Debug|x86.Build.0 = Debug|Any CPU
-		{9BE8A7C6-331E-8413-4F56-B8BD3EC67E7F}.Debug|x86.Deploy.0 = Debug|Any CPU
-		{9BE8A7C6-331E-8413-4F56-B8BD3EC67E7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9BE8A7C6-331E-8413-4F56-B8BD3EC67E7F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9BE8A7C6-331E-8413-4F56-B8BD3EC67E7F}.Release|Any CPU.Deploy.0 = Release|Any CPU
-		{9BE8A7C6-331E-8413-4F56-B8BD3EC67E7F}.Release|x64.ActiveCfg = Release|Any CPU
-		{9BE8A7C6-331E-8413-4F56-B8BD3EC67E7F}.Release|x64.Build.0 = Release|Any CPU
-		{9BE8A7C6-331E-8413-4F56-B8BD3EC67E7F}.Release|x64.Deploy.0 = Release|Any CPU
-		{9BE8A7C6-331E-8413-4F56-B8BD3EC67E7F}.Release|x86.ActiveCfg = Release|Any CPU
-		{9BE8A7C6-331E-8413-4F56-B8BD3EC67E7F}.Release|x86.Build.0 = Release|Any CPU
-		{9BE8A7C6-331E-8413-4F56-B8BD3EC67E7F}.Release|x86.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

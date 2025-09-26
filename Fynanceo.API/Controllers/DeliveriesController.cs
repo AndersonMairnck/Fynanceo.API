@@ -310,6 +310,16 @@ namespace Fynanceo.API.Controllers
             var today = DateTime.Today;
             var deliveries = await _context.Deliveries.ToListAsync();
 
+            // Filtra apenas entregas que têm hora real de entrega registrada
+            var validDeliveries = deliveries
+                .Where(d => d.ActualDeliveryTime.HasValue && d.CreatedAt != null)
+                .ToList();
+
+            // Se não houver entregas válidas, retorna 0 como tempo médio
+            var avgDeliveryTime = validDeliveries.Any()
+                ? validDeliveries.Average(d => (d.ActualDeliveryTime.Value - d.CreatedAt).TotalMinutes)
+                : 0;
+
             var stats = new DeliveryStatsDTO
             {
                 TotalDeliveries = deliveries.Count,
@@ -318,13 +328,12 @@ namespace Fynanceo.API.Controllers
                     d.Status == "EmPreparo" || d.Status == "EmRota" || d.Status == "SaiuParaEntrega"),
                 CompletedDeliveries = deliveries.Count(d => d.Status == "Entregue"),
                 TodayDeliveries = deliveries.Count(d => d.CreatedAt.Date == today),
-                AverageDeliveryTime = deliveries
-                    .Where(d => d.ActualDeliveryTime.HasValue && d.CreatedAt != null)
-                    .Average(d => (d.ActualDeliveryTime.Value - d.CreatedAt).TotalMinutes)
+                AverageDeliveryTime = avgDeliveryTime
             };
 
             return Ok(stats);
         }
+
 
         private string GenerateOrderNumber()
         {

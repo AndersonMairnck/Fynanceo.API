@@ -3,20 +3,20 @@
   "WorkspaceRootPath": "D:\\Mairinck\\1- Projetos\\analisar projetos de estoques e clientes\\Fynanceod\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{8EA0E96C-3A76-4AC5-B6AA-07D70FAF8F5C}|Fynanceo.API\\Fynanceo.API.csproj|d:\\mairinck\\1- projetos\\analisar projetos de estoques e clientes\\fynanceod\\fynanceo.api\\controllers\\categorycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8EA0E96C-3A76-4AC5-B6AA-07D70FAF8F5C}|Fynanceo.API\\Fynanceo.API.csproj|solutionrelative:fynanceo.api\\controllers\\categorycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{8EA0E96C-3A76-4AC5-B6AA-07D70FAF8F5C}|Fynanceo.API\\Fynanceo.API.csproj|d:\\mairinck\\1- projetos\\analisar projetos de estoques e clientes\\fynanceod\\fynanceo.api\\controllers\\productscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8EA0E96C-3A76-4AC5-B6AA-07D70FAF8F5C}|Fynanceo.API\\Fynanceo.API.csproj|solutionrelative:fynanceo.api\\controllers\\productscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{8EA0E96C-3A76-4AC5-B6AA-07D70FAF8F5C}|Fynanceo.API\\Fynanceo.API.csproj|d:\\mairinck\\1- projetos\\analisar projetos de estoques e clientes\\fynanceod\\fynanceo.api\\controllers\\deliveriescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8EA0E96C-3A76-4AC5-B6AA-07D70FAF8F5C}|Fynanceo.API\\Fynanceo.API.csproj|solutionrelative:fynanceo.api\\controllers\\deliveriescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{8EA0E96C-3A76-4AC5-B6AA-07D70FAF8F5C}|Fynanceo.API\\Fynanceo.API.csproj|d:\\mairinck\\1- projetos\\analisar projetos de estoques e clientes\\fynanceod\\fynanceo.api\\controllers\\orderscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8EA0E96C-3A76-4AC5-B6AA-07D70FAF8F5C}|Fynanceo.API\\Fynanceo.API.csproj|solutionrelative:fynanceo.api\\controllers\\orderscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{8EA0E96C-3A76-4AC5-B6AA-07D70FAF8F5C}|Fynanceo.API\\Fynanceo.API.csproj|d:\\mairinck\\1- projetos\\analisar projetos de estoques e clientes\\fynanceod\\fynanceo.api\\controllers\\deliveriescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8EA0E96C-3A76-4AC5-B6AA-07D70FAF8F5C}|Fynanceo.API\\Fynanceo.API.csproj|solutionrelative:fynanceo.api\\controllers\\deliveriescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{8EA0E96C-3A76-4AC5-B6AA-07D70FAF8F5C}|Fynanceo.API\\Fynanceo.API.csproj|d:\\mairinck\\1- projetos\\analisar projetos de estoques e clientes\\fynanceod\\fynanceo.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{8EA0E96C-3A76-4AC5-B6AA-07D70FAF8F5C}|Fynanceo.API\\Fynanceo.API.csproj|solutionrelative:fynanceo.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8EA0E96C-3A76-4AC5-B6AA-07D70FAF8F5C}|Fynanceo.API\\Fynanceo.API.csproj|d:\\mairinck\\1- projetos\\analisar projetos de estoques e clientes\\fynanceod\\fynanceo.api\\models\\entities\\delivery.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8EA0E96C-3A76-4AC5-B6AA-07D70FAF8F5C}|Fynanceo.API\\Fynanceo.API.csproj|solutionrelative:fynanceo.api\\models\\entities\\delivery.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{8EA0E96C-3A76-4AC5-B6AA-07D70FAF8F5C}|Fynanceo.API\\Fynanceo.API.csproj|d:\\mairinck\\1- projetos\\analisar projetos de estoques e clientes\\fynanceod\\fynanceo.api\\models\\entities\\order.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -25,6 +25,14 @@
     {
       "AbsoluteMoniker": "D:0:0:{8EA0E96C-3A76-4AC5-B6AA-07D70FAF8F5C}|Fynanceo.API\\Fynanceo.API.csproj|d:\\mairinck\\1- projetos\\analisar projetos de estoques e clientes\\fynanceod\\fynanceo.api\\controllers\\customerscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8EA0E96C-3A76-4AC5-B6AA-07D70FAF8F5C}|Fynanceo.API\\Fynanceo.API.csproj|solutionrelative:fynanceo.api\\controllers\\customerscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8EA0E96C-3A76-4AC5-B6AA-07D70FAF8F5C}|Fynanceo.API\\Fynanceo.API.csproj|d:\\mairinck\\1- projetos\\analisar projetos de estoques e clientes\\fynanceod\\fynanceo.api\\controllers\\categorycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8EA0E96C-3A76-4AC5-B6AA-07D70FAF8F5C}|Fynanceo.API\\Fynanceo.API.csproj|solutionrelative:fynanceo.api\\controllers\\categorycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8EA0E96C-3A76-4AC5-B6AA-07D70FAF8F5C}|Fynanceo.API\\Fynanceo.API.csproj|d:\\mairinck\\1- projetos\\analisar projetos de estoques e clientes\\fynanceod\\fynanceo.api\\controllers\\productscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8EA0E96C-3A76-4AC5-B6AA-07D70FAF8F5C}|Fynanceo.API\\Fynanceo.API.csproj|solutionrelative:fynanceo.api\\controllers\\productscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -34,63 +42,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "CategoryController.cs",
-              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\analisar projetos de estoques e clientes\\Fynanceod\\Fynanceo.API\\Controllers\\CategoryController.cs",
-              "RelativeDocumentMoniker": "Fynanceo.API\\Controllers\\CategoryController.cs",
-              "ToolTip": "D:\\Mairinck\\1- Projetos\\analisar projetos de estoques e clientes\\Fynanceod\\Fynanceo.API\\Controllers\\CategoryController.cs*",
-              "RelativeToolTip": "Fynanceo.API\\Controllers\\CategoryController.cs*",
-              "ViewState": "AgIAABIAAAAAAAAAAAAjwBUAAAAvAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-24T02:48:34.664Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "OrdersController.cs",
-              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\analisar projetos de estoques e clientes\\Fynanceod\\Fynanceo.API\\Controllers\\OrdersController.cs",
-              "RelativeDocumentMoniker": "Fynanceo.API\\Controllers\\OrdersController.cs",
-              "ToolTip": "D:\\Mairinck\\1- Projetos\\analisar projetos de estoques e clientes\\Fynanceod\\Fynanceo.API\\Controllers\\OrdersController.cs*",
-              "RelativeToolTip": "Fynanceo.API\\Controllers\\OrdersController.cs*",
-              "ViewState": "AgIAAIoAAAAAAAAAAAAUwJwAAAAIAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-23T14:36:23.105Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "DeliveriesController.cs",
-              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\analisar projetos de estoques e clientes\\Fynanceod\\Fynanceo.API\\Controllers\\DeliveriesController.cs",
-              "RelativeDocumentMoniker": "Fynanceo.API\\Controllers\\DeliveriesController.cs",
-              "ToolTip": "D:\\Mairinck\\1- Projetos\\analisar projetos de estoques e clientes\\Fynanceod\\Fynanceo.API\\Controllers\\DeliveriesController.cs",
-              "RelativeToolTip": "Fynanceo.API\\Controllers\\DeliveriesController.cs",
-              "ViewState": "AgIAAJIBAAAAAAAAAAAUwJ4BAABFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-23T14:36:23.142Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "ProductsController.cs",
-              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\analisar projetos de estoques e clientes\\Fynanceod\\Fynanceo.API\\Controllers\\ProductsController.cs",
-              "RelativeDocumentMoniker": "Fynanceo.API\\Controllers\\ProductsController.cs",
-              "ToolTip": "D:\\Mairinck\\1- Projetos\\analisar projetos de estoques e clientes\\Fynanceod\\Fynanceo.API\\Controllers\\ProductsController.cs",
-              "RelativeToolTip": "Fynanceo.API\\Controllers\\ProductsController.cs",
-              "ViewState": "AgIAABAAAAAAAAAAAAAjwBkAAAAIAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-24T01:17:55.684Z",
-              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -102,8 +58,7 @@
               "RelativeToolTip": "Fynanceo.API\\Controllers\\CustomersController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-23T21:59:27.196Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-23T21:59:27.196Z"
             },
             {
               "$type": "Document",
@@ -113,10 +68,82 @@
               "RelativeDocumentMoniker": "Fynanceo.API\\Models\\Entities\\Order.cs",
               "ToolTip": "D:\\Mairinck\\1- Projetos\\analisar projetos de estoques e clientes\\Fynanceod\\Fynanceo.API\\Models\\Entities\\Order.cs",
               "RelativeToolTip": "Fynanceo.API\\Models\\Entities\\Order.cs",
-              "ViewState": "AgIAAB4AAAAAAAAAAAAUwC0AAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAB8AAAAAAAAAAAAmwC0AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-24T09:52:07.529Z",
+              "WhenOpened": "2025-09-24T09:52:07.529Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "CategoryController.cs",
+              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\analisar projetos de estoques e clientes\\Fynanceod\\Fynanceo.API\\Controllers\\CategoryController.cs",
+              "RelativeDocumentMoniker": "Fynanceo.API\\Controllers\\CategoryController.cs",
+              "ToolTip": "D:\\Mairinck\\1- Projetos\\analisar projetos de estoques e clientes\\Fynanceod\\Fynanceo.API\\Controllers\\CategoryController.cs",
+              "RelativeToolTip": "Fynanceo.API\\Controllers\\CategoryController.cs",
+              "ViewState": "AgIAABIAAAAAAAAAAAAjwBsAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-24T02:48:34.664Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Delivery.cs",
+              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\analisar projetos de estoques e clientes\\Fynanceod\\Fynanceo.API\\Models\\Entities\\Delivery.cs",
+              "RelativeDocumentMoniker": "Fynanceo.API\\Models\\Entities\\Delivery.cs",
+              "ToolTip": "D:\\Mairinck\\1- Projetos\\analisar projetos de estoques e clientes\\Fynanceod\\Fynanceo.API\\Models\\Entities\\Delivery.cs",
+              "RelativeToolTip": "Fynanceo.API\\Models\\Entities\\Delivery.cs",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAgwBkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-25T20:22:37.925Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "DeliveriesController.cs",
+              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\analisar projetos de estoques e clientes\\Fynanceod\\Fynanceo.API\\Controllers\\DeliveriesController.cs",
+              "RelativeDocumentMoniker": "Fynanceo.API\\Controllers\\DeliveriesController.cs",
+              "ToolTip": "D:\\Mairinck\\1- Projetos\\analisar projetos de estoques e clientes\\Fynanceod\\Fynanceo.API\\Controllers\\DeliveriesController.cs",
+              "RelativeToolTip": "Fynanceo.API\\Controllers\\DeliveriesController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAPoAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-23T14:36:23.142Z",
               "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\analisar projetos de estoques e clientes\\Fynanceod\\Fynanceo.API\\appsettings.json",
+              "RelativeDocumentMoniker": "Fynanceo.API\\appsettings.json",
+              "ToolTip": "D:\\Mairinck\\1- Projetos\\analisar projetos de estoques e clientes\\Fynanceod\\Fynanceo.API\\appsettings.json",
+              "RelativeToolTip": "Fynanceo.API\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-09-26T13:56:47.496Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "OrdersController.cs",
+              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\analisar projetos de estoques e clientes\\Fynanceod\\Fynanceo.API\\Controllers\\OrdersController.cs",
+              "RelativeDocumentMoniker": "Fynanceo.API\\Controllers\\OrdersController.cs",
+              "ToolTip": "D:\\Mairinck\\1- Projetos\\analisar projetos de estoques e clientes\\Fynanceod\\Fynanceo.API\\Controllers\\OrdersController.cs",
+              "RelativeToolTip": "Fynanceo.API\\Controllers\\OrdersController.cs",
+              "ViewState": "AgIAAGQAAAAAAAAAAAAnwG4AAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-23T14:36:23.105Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ProductsController.cs",
+              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\analisar projetos de estoques e clientes\\Fynanceod\\Fynanceo.API\\Controllers\\ProductsController.cs",
+              "RelativeDocumentMoniker": "Fynanceo.API\\Controllers\\ProductsController.cs",
+              "ToolTip": "D:\\Mairinck\\1- Projetos\\analisar projetos de estoques e clientes\\Fynanceod\\Fynanceo.API\\Controllers\\ProductsController.cs",
+              "RelativeToolTip": "Fynanceo.API\\Controllers\\ProductsController.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAjwBoAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-24T01:17:55.684Z"
             }
           ]
         }
